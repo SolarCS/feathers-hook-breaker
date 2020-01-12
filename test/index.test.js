@@ -2,65 +2,69 @@ const assert = require('assert');
 const errors = require('@feathersjs/errors');
 const feathers = require('@feathersjs/feathers');
 const { adapter } = require('../lib');
-
+const Service = require('./mockservice');
 const app = feathers();
-
-const CircuitBreaker = require('opossum');
-const timeout = async delay => {
-  return new Promise(resolve => setTimeout(resolve, delay));
-};
-class MockService {
-  constructor(options = {}) {
-    this.name = 'test';
-    this.delay = options.delay || 1000;
-  }
-
-  async get(id, params) {
-    await timeout(this.delay);
-    return { id: 1, name: 'john' };
-  }
-  async find(params) {
-    await timeout(this.delay);
-    return [{ id: 1, name: 'john' }];
-  }
-}
-
-const Service = { Service: MockService };
 
 describe('Feathers Opossum Tests', () => {
   before(async () => {
-    // app.use('/fast', new MockService({ delay: 500 }));
-    // app.use('/slow', new MockService({ delay: 1000 }));
     const options = {
       timeout: 200, // If our function takes longer than 3 seconds, trigger a failure
       errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
-      resetTimeout: 30000 // After 30 seconds, try again.
+      resetTimeout: 3000 // After 30 seconds, try again.
     };
-    console.log(Service);
-    const serviceOP = adapter(Service, { delay: 100 }, options);
-    app.use('/adapter', serviceOP);
+    const mockService = adapter(Service, { delay: 100 }, options);
+    app.use('/adapter', mockService);
   });
 
   after(async () => {});
 
-  it('adapter class', async () => {
-    // assert.strictEqual(typeof app.service('adapter').get, 'function', 'Error', 'Got not a response status');
-    // assert.strictEqual(typeof serviceOP.find, 'function', 'Error', 'Got not a response status');
-    // assert.strictEqual(typeof serviceOP.patch, 'function', 'Error', 'Got not a response status');
-    // assert.strictEqual(typeof serviceOP.update, 'function', 'Error', 'Got not a response status');
-    // assert.strictEqual(typeof serviceOP.remove, 'function', 'Error', 'Got not a response status');
+  it('adapter class methods', async () => {
+    assert.strictEqual(typeof app.service('adapter').get, 'function', 'Error', 'Got not a response status');
+    assert.strictEqual(typeof app.service('adapter').find, 'function', 'Error', 'Got not a response status');
+    assert.strictEqual(typeof app.service('adapter').update, 'function', 'Error', 'Got not a response status');
+    assert.strictEqual(typeof app.service('adapter').patch, 'function', 'Error', 'Got not a response status');
+    assert.strictEqual(typeof app.service('adapter').remove, 'function', 'Error', 'Got not a response status');
   });
 
-  // it('adapter methods.get', async () => {
-  //   const result = await app.service('adapter').get(1, { name: 'John' });
-  //   console.log('.get', result);
-  //   assert.ok(1);
-  // });
+  it('faster than timeout', async () => {
+    const result = await app.service('adapter').get(1, { name: 'John' });
+    assert.strictEqual(result.id, 1, `Timed out after 200ms`);
+  });
 
-  it('adapter methods.find', async () => {
-    const result = await app.service('adapter').find({ id: 1, name: 'John' });
-    // console.log('.find', result);
-    assert.ok(1);
+  it('slower than timeout first timeout', async () => {
+    try {
+      await app.service('adapter').get(500);
+      throw new Error('Should never get here');
+    } catch (error) {
+      assert.strictEqual(error.message, `Timed out after 200ms`);
+    }
+  });
+
+  it('slower than timeout second timeout', async () => {
+    try {
+      await app.service('adapter').get(500);
+      throw new Error('Should never get here');
+    } catch (error) {
+      assert.strictEqual(error.message, `Timed out after 200ms`);
+    }
+  });
+
+  it('slower than timeout third - breaker is open', async () => {
+    try {
+      await app.service('adapter').get(500);
+      throw new Error('Should never get here');
+    } catch (error) {
+      assert.strictEqual(error.message, `Breaker is open`);
+    }
+  });
+
+  it('wait - breaker is closed', async () => {
+    const timeout = async delay => {
+      return new Promise(resolve => setTimeout(resolve, delay));
+    };
+    await timeout(4000);
+    const result = await app.service('adapter').get(1);
+    assert.strictEqual(result.id, 1, `Result ok`);
   });
 
   // it('.find slow', async () => {
