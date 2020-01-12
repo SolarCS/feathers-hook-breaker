@@ -59,7 +59,7 @@ describe('Feathers Opossum Tests', () => {
 
   it('adapter methods.find', async () => {
     const result = await app.service('adapter').find({ id: 1, name: 'John' });
-    console.log('.find', result);
+    // console.log('.find', result);
     assert.ok(1);
   });
 
