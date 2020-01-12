@@ -37,7 +37,6 @@
     "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish",
     "lint": "semistandard --fix",
-    "dtslint": "dtslint types",
     "mocha": "mocha --opts mocha.opts -S",
     "mocha:watch": "mocha --opts mocha.opts -S --watch lib node_modules/@feathersjs/adapter-tests/lib",
     "test": "npm run lint && npm run dtslint && npm run coverage",
@@ -57,10 +56,6 @@
     "lib": "lib"
   },
   "dependencies": {
-    "@feathersjs/adapter-commons": "^4.4.3",
-    "@feathersjs/commons": "^4.4.3",
-    "@feathersjs/errors": "^4.4.3",
-    "debug": "^4.1.1",
     "opossum": "^4.2.3"
   },
   "devDependencies": {
@@ -70,15 +65,11 @@
     "body-parser": "^1.19.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "clinic": "^5.0.0",
     "coveralls": "^3.0.9",
-    "dtslint": "^2.0.2",
     "feathers-memory": "^4.1.0",
     "istanbul": "^1.1.0-alpha.1",
     "loud-rejection": "^2.2.0",
     "mocha": "^6.2.2",
-    "node-fetch": "^2.6.0",
-    "semistandard": "^14.2.0",
-    "undici": "^0.4.0"
+    "semistandard": "^14.2.0"
   }
 }
