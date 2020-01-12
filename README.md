@@ -16,8 +16,8 @@ npm install feathers-opossum --save
 ### `service(options)`
 
 ```javascript
-const memory = require('feathers-memory');
-const OpossumService = require('feathers-opossum');
+const service = require('service');
+const opossumService = require('feathers-opossum');
 
 const options = {
   opossum: {
@@ -33,7 +33,7 @@ const options = {
   methods: ['find', 'get'], // feel free to use updat, patch amd remove
 };
 
-const circuitedService = OpossumService(memory, {id:'_id', paginate: {max:10 }, options);
+const circuitedService = opossumService(service, {id:'_id', paginate: {max:10 }, options);
 
 app.use('/may-fail', circuitedService);
 ```
