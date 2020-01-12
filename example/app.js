@@ -13,7 +13,6 @@ const app = feathers();
 class MyService extends memory.Service {
   constructor(serviceOptions, opossumOptions) {
     super(serviceOptions);
-    console.log('!!!');
   }
   find(params) {
     return super.find(params);
