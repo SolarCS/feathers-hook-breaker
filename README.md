@@ -40,7 +40,7 @@ app.use('/may-fail', circuitedService);
 
 ## Changelog
 
-**1.0.0**
+**0.1.0**
 
 - publish
 
