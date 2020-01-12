@@ -158,7 +158,7 @@ describe('Feathers Opossum Tests Structured Configuration', () => {
     const timeout = async delay => {
       return new Promise(resolve => setTimeout(resolve, delay));
     };
-    await timeout(4000);
+    await timeout(1200);
     const result = await app.service('adapter').get(1);
     assert.strictEqual(result.id, 1, `Result ok`);
   });
