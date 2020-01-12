@@ -31,9 +31,9 @@ describe('Feathers Opossum Tests Simple Configuration', () => {
   before(async () => {
     const options = {
       opossum: {
-        timeout: 200, // If our function takes longer than 3 seconds, trigger a failure
+        timeout: 100, // If our function takes longer than 3 seconds, trigger a failure
         errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
-        resetTimeout: 3000 // After 30 seconds, try again.
+        resetTimeout: 1000 // After 30 seconds, try again.
       },
       fallback: () => {
         errro: 'Sorry, out of service right now';
@@ -43,37 +43,37 @@ describe('Feathers Opossum Tests Simple Configuration', () => {
       methods: ['find', 'get']
     };
 
-    const mockService = OpossumService(Service, { delay: 100 }, options);
+    const mockService = OpossumService(Service, { delay: 10 }, options);
 
     app.use('/adapter', mockService);
   });
 
   it('faster than timeout', async () => {
     const result = await app.service('adapter').get(1, { name: 'John' });
-    assert.strictEqual(result.id, 1, `Timed out after 200ms`);
+    assert.strictEqual(result.id, 1, `Timed out after 100ms`);
   });
 
   it('slower than timeout first timeout', async () => {
     try {
-      await app.service('adapter').get(500);
+      await app.service('adapter').get(200);
       throw new Error('Should never get here');
     } catch (error) {
-      assert.strictEqual(error.message, `Timed out after 200ms`);
+      assert.strictEqual(error.message, `Timed out after 100ms`);
     }
   });
 
   it('slower than timeout second timeout', async () => {
     try {
-      await app.service('adapter').get(500);
+      await app.service('adapter').get(200);
       throw new Error('Should never get here');
     } catch (error) {
-      assert.strictEqual(error.message, `Timed out after 200ms`);
+      assert.strictEqual(error.message, `Timed out after 100ms`);
     }
   });
 
   it('slower than timeout third - breaker is open', async () => {
     try {
-      await app.service('adapter').get(500);
+      await app.service('adapter').get(200);
       throw new Error('Should never get here');
     } catch (error) {
       assert.strictEqual(error.message, `Breaker is open`);
@@ -84,7 +84,7 @@ describe('Feathers Opossum Tests Simple Configuration', () => {
     const timeout = async delay => {
       return new Promise(resolve => setTimeout(resolve, delay));
     };
-    await timeout(4000);
+    await timeout(1200);
     const result = await app.service('adapter').get(1);
     assert.strictEqual(result.id, 1, `Result ok`);
   });
@@ -95,9 +95,9 @@ describe('Feathers Opossum Tests Structured Configuration', () => {
     const options = {
       find: {
         opossum: {
-          timeout: 200, // If our function takes longer than 3 seconds, trigger a failure
+          timeout: 100, // If our function takes longer than 3 seconds, trigger a failure
           errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
-          resetTimeout: 3000 // After 30 seconds, try again.
+          resetTimeout: 1000 // After 30 seconds, try again.
         }
         // fallback: () => {
         //   errro: 'Sorry, out of service right now';
@@ -106,9 +106,9 @@ describe('Feathers Opossum Tests Structured Configuration', () => {
       },
       get: {
         opossum: {
-          timeout: 200, // If our function takes longer than 3 seconds, trigger a failure
+          timeout: 100, // If our function takes longer than 3 seconds, trigger a failure
           errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
-          resetTimeout: 3000 // After 30 seconds, try again.
+          resetTimeout: 1000 // After 30 seconds, try again.
         }
         // fallback: () => {
         //   errro: 'Sorry, out of service right now';
@@ -117,7 +117,7 @@ describe('Feathers Opossum Tests Structured Configuration', () => {
       }
     };
 
-    const mockService = OpossumService(Service, { delay: 100 }, options);
+    const mockService = OpossumService(Service, { delay: 10 }, options);
 
     app.use('/adapter', mockService);
   });
@@ -129,25 +129,25 @@ describe('Feathers Opossum Tests Structured Configuration', () => {
 
   it('slower than timeout first timeout', async () => {
     try {
-      await app.service('adapter').get(500);
+      await app.service('adapter').get(200);
       throw new Error('Should never get here');
     } catch (error) {
-      assert.strictEqual(error.message, `Timed out after 200ms`);
+      assert.strictEqual(error.message, `Timed out after 100ms`);
     }
   });
 
   it('slower than timeout second timeout', async () => {
     try {
-      await app.service('adapter').get(500);
+      await app.service('adapter').get(200);
       throw new Error('Should never get here');
     } catch (error) {
-      assert.strictEqual(error.message, `Timed out after 200ms`);
+      assert.strictEqual(error.message, `Timed out after 100ms`);
     }
   });
 
   it('slower than timeout third - breaker is open', async () => {
     try {
-      await app.service('adapter').get(500);
+      await app.service('adapter').get(200);
       throw new Error('Should never get here');
     } catch (error) {
       assert.strictEqual(error.message, `Breaker is open`);
