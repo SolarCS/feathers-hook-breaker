@@ -25,34 +25,17 @@ const options = {
     errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
     resetTimeout: 30000 // After 30 seconds, try again.
   },
-  timeout: 200, // If our function takes longer than 3 seconds, trigger a failure
-  errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
-  resetTimeout: 30000, // After 30 seconds, try again.
   fallback: () => {
     errro: 'Sorry, out of service right now';
   },
   onFallback: result => reportFallbackEvent(result),
   // this means only find and get method relay on circur breaking
   methods: ['find', 'get'], // feel free to use updat, patch amd remove
-  // or overide per method
-  methods: {
-    find: {
-      opossum: {
-        timeout: 200, // If our function takes longer than 3 seconds, trigger a failure
-        errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
-        resetTimeout: 30000 // After 30 seconds, try again.
-      },
-      fallback: () => {
-        errro: 'Sorry, out of service right now';
-      },
-      onFallback: result => reportFallbackEvent(result)
-    }
-  }
 };
 
-const service = OpossumService(options);
+const circuitedService = OpossumService(memory, {id:'_id', paginate: {max:10 }, options);
 
-app.use('/may-fail', service);
+app.use('/may-fail', circuitedService);
 ```
 
 ## Changelog
