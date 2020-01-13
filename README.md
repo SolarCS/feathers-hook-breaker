@@ -21,7 +21,7 @@ const opossumService = require('feathers-opossum');
 
 const options = {
   opossum: {
-    timeout: 200, // If our function takes longer than 3 seconds, trigger a failure
+    timeout: 3000, // If our function takes longer than 3 seconds, trigger a failure
     errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
     resetTimeout: 30000 // After 30 seconds, try again.
   },
@@ -44,9 +44,9 @@ app.use('/may-fail', circuitedService);
   const options = {
       find: {
         opossum: {
-          timeout: 100, // If our function takes longer than 3 seconds, trigger a failure
+          timeout: 5000, // If our function takes longer than 3 seconds, trigger a failure
           errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
-          resetTimeout: 1000 // After 30 seconds, try again.
+          resetTimeout: 30000 // After 30 seconds, try again.
         }
         fallback: () => {
           error: 'Sorry, out of service right now';
@@ -55,9 +55,9 @@ app.use('/may-fail', circuitedService);
       },
       get: {
         opossum: {
-          timeout: 100, // If our function takes longer than 3 seconds, trigger a failure
+          timeout: 1000, // If our function takes longer than 3 seconds, trigger a failure
           errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
-          resetTimeout: 1000 // After 30 seconds, try again.
+          resetTimeout: 30000 // After 30 seconds, try again.
         }
         fallback: () => {
            error: 'Sorry, out of service right now';
