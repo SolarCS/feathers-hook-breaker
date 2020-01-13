@@ -38,6 +38,35 @@ const circuitedService = opossumService(service, {id:'_id', paginate: {max:10 },
 app.use('/may-fail', circuitedService);
 ```
 
+> Options per Service Method
+
+```javascript
+  const options = {
+      find: {
+        opossum: {
+          timeout: 100, // If our function takes longer than 3 seconds, trigger a failure
+          errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
+          resetTimeout: 1000 // After 30 seconds, try again.
+        }
+        fallback: () => {
+          error: 'Sorry, out of service right now';
+        },
+        onFallback: result => reportFallbackEvent(result)
+      },
+      get: {
+        opossum: {
+          timeout: 100, // If our function takes longer than 3 seconds, trigger a failure
+          errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
+          resetTimeout: 1000 // After 30 seconds, try again.
+        }
+        fallback: () => {
+           error: 'Sorry, out of service right now';
+        },
+        onFallback: result => reportFallbackEvent(result)
+      }
+    };
+```
+
 ## Changelog
 
 **0.1.0**

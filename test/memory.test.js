@@ -83,7 +83,7 @@ describe('Feathers Opossum - Memory Tests', () => {
       },
       methods: ['get', 'find'],
       fallback: () => {
-        errro: 'Sorry, out of service right now';
+        error: 'Sorry, out of service right now';
       },
       onFallback: result => reportFallbackEvent(result)
     };

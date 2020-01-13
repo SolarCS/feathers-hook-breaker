@@ -36,7 +36,7 @@ describe('Feathers Opossum Tests Simple Configuration', () => {
         resetTimeout: 1000 // After 30 seconds, try again.
       },
       fallback: () => {
-        errro: 'Sorry, out of service right now';
+        error: 'Sorry, out of service right now';
       },
       onFallback: result => reportFallbackEvent(result),
       // this means only find and get method relay on circur breaking
@@ -100,7 +100,7 @@ describe('Feathers Opossum Tests Structured Configuration', () => {
           resetTimeout: 1000 // After 30 seconds, try again.
         }
         // fallback: () => {
-        //   errro: 'Sorry, out of service right now';
+        //   error: 'Sorry, out of service right now';
         // },
         // onFallback: result => reportFallbackEvent(result)
       },
@@ -111,7 +111,7 @@ describe('Feathers Opossum Tests Structured Configuration', () => {
           resetTimeout: 1000 // After 30 seconds, try again.
         }
         // fallback: () => {
-        //   errro: 'Sorry, out of service right now';
+        //   error: 'Sorry, out of service right now';
         // },
         // onFallback: result => reportFallbackEvent(result)
       }
