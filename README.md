@@ -13,7 +13,7 @@ npm install feathers-opossum --save
 
 ## API
 
-### `service(options)`
+### `service(Service, serviceOptions, opossumOptions)`
 
 ```javascript
 const service = require('service');
@@ -21,16 +21,15 @@ const opossumService = require('feathers-opossum');
 
 const options = {
   opossum: {
-    timeout: 3000, // If our function takes longer than 3 seconds, trigger a failure
-    errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
-    resetTimeout: 30000 // After 30 seconds, try again.
+    timeout: 3000,
+    errorThresholdPercentage: 50,
+    resetTimeout: 30000
   },
   fallback: () => {
     errro: 'Sorry, out of service right now';
   },
   onFallback: result => reportFallbackEvent(result),
-  // this means only find and get method relay on circur breaking
-  methods: ['find', 'get'], // feel free to use updat, patch amd remove
+  methods: ['find', 'get']
 };
 
 const circuitedService = opossumService(service, {id:'_id', paginate: {max:10 }, options);
@@ -38,15 +37,24 @@ const circuitedService = opossumService(service, {id:'_id', paginate: {max:10 },
 app.use('/may-fail', circuitedService);
 ```
 
+Options:
+
+- `Service` (**required**) - The main service
+- `opossum.timeout` (optional, default: 3000) - If our function takes longer than trigger a failure
+- `opossum.errorThresholdPercentage` (optional, default: 50) - When this ratio on requests fail, trip the circuit
+- `opossum.resetTimeout` (optional, default: 30000) - After this try again.
+- `fallback` - A fallback function that will be executed in the event of failure.
+- `onFallback` - A listener for the fallback event.
+
 > Options per Service Method
 
 ```javascript
   const options = {
       find: {
         opossum: {
-          timeout: 5000, // If our function takes longer than 3 seconds, trigger a failure
-          errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
-          resetTimeout: 30000 // After 30 seconds, try again.
+          timeout: 5000,
+          errorThresholdPercentage: 50,
+          resetTimeout: 30000
         }
         fallback: () => {
           error: 'Sorry, out of service right now';
@@ -55,9 +63,9 @@ app.use('/may-fail', circuitedService);
       },
       get: {
         opossum: {
-          timeout: 1000, // If our function takes longer than 3 seconds, trigger a failure
-          errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
-          resetTimeout: 30000 // After 30 seconds, try again.
+          timeout: 1000,
+          errorThresholdPercentage: 50,
+          resetTimeout: 30000
         }
         fallback: () => {
            error: 'Sorry, out of service right now';
