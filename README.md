@@ -15,6 +15,8 @@ npm install feathers-opossum --save
 
 ### `service(Service, serviceOptions, opossumOptions)`
 
+Example:
+
 ```javascript
 const service = require('service');
 const opossumService = require('feathers-opossum');
@@ -46,7 +48,7 @@ Options:
 - `fallback` - A fallback function that will be executed in the event of failure.
 - `onFallback` - A listener for the fallback event.
 
-> Options per Service Method
+Options per Service Method:
 
 ```javascript
   const options = {
