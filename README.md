@@ -28,7 +28,7 @@ const options = {
     resetTimeout: 30000
   },
   fallback: () => {
-    errro: 'Sorry, out of service right now';
+          return 'Sorry, out of service right now';
   },
   events: {
     fallback: result => reportFallbackEvent(result),
