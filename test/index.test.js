@@ -1,5 +1,5 @@
 const assert = require('assert');
-const errors = require('@feathersjs/errors');
+const EventEmitter = require('events').EventEmitter;
 const feathers = require('@feathersjs/feathers');
 const OpossumService = require('../lib');
 const Service = require('./service/mock');
@@ -35,10 +35,6 @@ describe('Feathers Opossum Tests Simple Configuration', () => {
         errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
         resetTimeout: 1000 // After 30 seconds, try again.
       },
-      fallback: () => {
-        error: 'Sorry, out of service right now';
-      },
-      onFallback: result => reportFallbackEvent(result),
       // this means only find and get method relay on circur breaking
       methods: ['find', 'get']
     };
@@ -99,10 +95,6 @@ describe('Feathers Opossum Tests Structured Configuration', () => {
           errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
           resetTimeout: 1000 // After 30 seconds, try again.
         }
-        // fallback: () => {
-        //   error: 'Sorry, out of service right now';
-        // },
-        // onFallback: result => reportFallbackEvent(result)
       },
       get: {
         opossum: {
@@ -110,10 +102,6 @@ describe('Feathers Opossum Tests Structured Configuration', () => {
           errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
           resetTimeout: 1000 // After 30 seconds, try again.
         }
-        // fallback: () => {
-        //   error: 'Sorry, out of service right now';
-        // },
-        // onFallback: result => reportFallbackEvent(result)
       }
     };
 
@@ -161,5 +149,69 @@ describe('Feathers Opossum Tests Structured Configuration', () => {
     await timeout(1200);
     const result = await app.service('adapter').get(1);
     assert.strictEqual(result.id, 1, `Result ok`);
+  });
+});
+
+describe('Feathers Opossum Tests Fallback', () => {
+  const emitter = new EventEmitter();
+  before(async () => {
+    const options = {
+      get: {
+        opossum: {
+          timeout: 100, // If our function takes longer than 3 seconds, trigger a failure
+          errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
+          resetTimeout: 1000 // After 30 seconds, try again.
+        },
+        fallback: () => {
+          return 'Sorry, out of service right now';
+        },
+        events: {
+          fire: result => emitter.emit('event', 'fire'),
+          reject: result => emitter.emit('event', 'reject'),
+          timeout: result => emitter.emit('event', 'timeout'),
+          success: result => emitter.emit('event', 'success'),
+          failure: result => emitter.emit('event', 'failure'),
+          open: result => emitter.emit('event', 'open'),
+          close: result => emitter.emit('event', 'close'),
+          halfOpen: result => emitter.emit('event', 'halfOpen'),
+          fallback: result => emitter.emit('event', 'fallback'),
+          semaphoreLocked: result => emitter.emit('event', 'semaphoreLocked'),
+          healthCheckFailed: result => emitter.emit('event', 'healthCheckFailed')
+        }
+      }
+    };
+
+    const mockService = OpossumService(Service, { delay: 10 }, options);
+
+    app.use('/adapter', mockService);
+  });
+
+  it('faster than timeout', async () => {
+    const result = await app.service('adapter').get(1, { name: 'John' });
+    assert.strictEqual(result.id, 1, `Id is is`);
+  });
+
+  it('slower than timeout expect fallback', async () => {
+    const result = await app.service('adapter').get(200, { name: 'John' });
+    assert.strictEqual(result, 'Sorry, out of service right now', `Sorry, out of service right now`);
+  });
+
+  it('wait - is closed', async () => {
+    const timeout = async delay => {
+      return new Promise(resolve => setTimeout(resolve, delay));
+    };
+    await timeout(1200);
+    const result = await app.service('adapter').get(20, { name: 'John' });
+    assert.strictEqual(result.id, 1, `Id is is`);
+  });
+
+  it('event fallback', done => {
+    emitter.on('event', msg => {
+      if (msg == 'fallback') done();
+    });
+    app
+      .service('adapter')
+      .get(120, { name: 'John' })
+      .catch(res => {});
   });
 });

@@ -81,11 +81,7 @@ describe('Feathers Opossum - Memory Tests', () => {
         errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
         resetTimeout: 30000 // After 30 seconds, try again.
       },
-      methods: ['get', 'find'],
-      fallback: () => {
-        error: 'Sorry, out of service right now';
-      },
-      onFallback: result => reportFallbackEvent(result)
+      methods: ['get', 'find']
     };
     const service = {
       events: ['testing']

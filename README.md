@@ -5,7 +5,7 @@
 [![dependencies Status](https://david-dm.org/sajov/feathers-opossum/status.svg)](https://david-dm.org/sajov/feathers-opossum)
 [![Known Vulnerabilities](https://snyk.io/test/npm/feathers-opossum/badge.svg)](https://snyk.io/test/npm/feathers-opossum)
 
-[feathers-opossum](https://github.com/sajov/feathers-opossum) is a [circuit breaker](https://martinfowler.com/bliki/CircuitBreaker.html) for Feathers adapters. It implements the [opossum](https://github.com/nodeshift/opossum) module.
+[feathers-opossum](https://github.com/sajov/feathers-opossum) is a [circuit breaker](https://martinfowler.com/bliki/CircuitBreaker.html) for Feathers services. It implements the [opossum](https://github.com/nodeshift/opossum) module.
 
 ```
 npm install feathers-opossum --save
@@ -30,7 +30,9 @@ const options = {
   fallback: () => {
     errro: 'Sorry, out of service right now';
   },
-  onFallback: result => reportFallbackEvent(result),
+  events: {
+    fallback: result => reportFallbackEvent(result),
+  }
   methods: ['find', 'get']
 };
 
@@ -59,9 +61,11 @@ Options per Service Method:
           resetTimeout: 30000
         }
         fallback: () => {
-          error: 'Sorry, out of service right now';
+          return 'Sorry, out of service right now';
         },
-        onFallback: result => reportFallbackEvent(result)
+        events: {
+          fallback: result => reportFallbackEvent(result),
+        }
       },
       get: {
         opossum: {
@@ -70,14 +74,21 @@ Options per Service Method:
           resetTimeout: 30000
         }
         fallback: () => {
-           error: 'Sorry, out of service right now';
+          return 'Sorry, out of service right now';
         },
-        onFallback: result => reportFallbackEvent(result)
+        events: {
+          fallback: result => reportFallbackEvent(result),
+        }
       }
     };
 ```
 
 ## Changelog
+
+**1.0.0**
+
+- implement opossum events
+- add event test
 
 **0.1.0**
 
