@@ -48,7 +48,7 @@ Options:
 - `opossum.errorThresholdPercentage` (optional, default: 50) - When this ratio on requests fail, trip the circuit
 - `opossum.resetTimeout` (optional, default: 30000) - After this try again.
 - `fallback` - A fallback function that will be executed in the event of failure.
-- `events` - (Opossum events)[https://github.com/nodeshift/opossum#events] listener.
+- `events` - [Opossum events](https://github.com/nodeshift/opossum#events) listener.
 
 Options per Service Method:
 
