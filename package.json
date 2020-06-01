@@ -1,7 +1,7 @@
 {
   "name": "feathers-opossum",
   "description": "A service plugin for opossum",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "https://github.com/sajov/feathers-opossum",
   "keywords": [
     "feathers",
