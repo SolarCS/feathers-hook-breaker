@@ -1,6 +1,9 @@
 exports.MockService = class MockService {
-  constructor (options = {}) {
+  constructor (options = {}, app) {
     this.name = 'test';
+    this.options = options || {};
+    this.app = app;
+    this.events = ['testing'];
   }
 
   async timeout (delay = 1000) {
