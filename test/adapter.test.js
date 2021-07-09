@@ -5,6 +5,8 @@ const services = require('./services');
 
 const app = feathers();
 
+app.configure(services);
+
 const testSuite = adapterTests([
   '.options',
   '.events',
@@ -71,9 +73,5 @@ const testSuite = adapterTests([
 ]);
 
 describe('Feathers Opossum - Adapter Tests', () => {
-  before(async () => {
-    app.configure(services);
-  });
-
   testSuite(app, errors, 'mock-service');
 });
