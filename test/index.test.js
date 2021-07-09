@@ -1,211 +1,212 @@
-// const assert = require('assert');
-// const circuitBreaker = require('../lib');
-// const { MockService } = require('./service/mock-service.class');
+const assert = require('assert');
+const circuitBreaker = require('../lib');
+const { MockService } = require('./service/mock-service.class');
 
-// describe('Basic Circuit Breaker Functionality', () => {
-//   let breaker;
 
-//   const ctx = {
-//     app: {
-//       service: () => MockService.prototype
-//     },
-//     path: 'mockService',
-//     params: {
-//       delay: null
-//     }
-//   };
+describe('Basic Circuit Breaker Functionality', () => {
+  let breaker;
 
-//   // These settings are configured to trip the breaker after the first failure,
-//   // rather than a percentage of failures
-//   const singleFailureSettings = {
-//     rollingCountTimeout: 10, // listens for failures for 10ms
-//     rollingCountBuckets: 1, // tracks failures for the entire 10ms block
-//     errorThresholdPercentage: 1 // breaker trips if greater than 1/100 attempts within 10ms fail
-//   };
+  const ctx = {
+    app: {
+      service: () => MockService.prototype
+    },
+    path: 'mockService',
+    params: {
+      delay: null
+    }
+  };
 
-//   const options = {
-//     timeout: 3000, // If our function takes longer than 0.2 seconds, trigger a failure
-//     resetTimeout: 3000, // After 3 seconds, try again.
-//     fallback: () => {
-//       console.log('FALLBACK !!!!!!!!!!!!!');
-//       return {
-//         fallback: 'called',
-//         method: ctx.method
-//       };
-//     },
-//     ...singleFailureSettings
-//   };
+  // These settings are configured to trip the breaker after the first failure,
+  // rather than a percentage of failures
+  const singleFailureSettings = {
+    rollingCountTimeout: 10, // listens for failures for 10ms
+    rollingCountBuckets: 1, // tracks failures for the entire 10ms block
+    errorThresholdPercentage: 1 // breaker trips if greater than 1/100 attempts within 10ms fail
+  };
 
-//   it('creates a circuit breaker in the global namespace', async () => {
-//     const initialBreakerCount = Object.keys(global.breakers).length;
+  const options = {
+    timeout: 3000, // If our function takes longer than 0.2 seconds, trigger a failure
+    resetTimeout: 3000, // After 3 seconds, try again.
+    fallback: () => {
+      console.log('FALLBACK !!!!!!!!!!!!!');
+      return {
+        fallback: 'called',
+        method: ctx.method
+      };
+    },
+    ...singleFailureSettings
+  };
 
-//     const testCtx = {
-//       method: 'find',
-//       ...ctx
-//     };
+  it('creates a circuit breaker in the global namespace', async () => {
+    const initialBreakerCount = Object.keys(global.breakers).length;
 
-//     await circuitBreaker(options)(testCtx);
+    const testCtx = {
+      method: 'find',
+      ...ctx
+    };
 
-//     assert.strictEqual(Object.keys(global.breakers).length, initialBreakerCount + 1);
-//     assert.ok(global.breakers.mockService);
+    await circuitBreaker(options)(testCtx);
 
-//     breaker = global.breakers.mockService;
+    assert.strictEqual(Object.keys(global.breakers).length, initialBreakerCount + 1);
+    assert.ok(global.breakers.mockService);
 
-//     console.log(breaker.stats.fires); // delete this once breaker is used elsewhere - to pass linting
-//   });
+    breaker = global.breakers.mockService;
 
-//   it('uses the same circuit breaker for a different method', async () => {
-//     const initialBreakerCount = Object.keys(global.breakers).length;
+    console.log(breaker.stats.fires); // delete this once breaker is used elsewhere - to pass linting
+  });
 
-//     const testCtx = {
-//       method: 'get',
-//       id: 100,
-//       ...ctx
-//     };
+  it('uses the same circuit breaker for a different method', async () => {
+    const initialBreakerCount = Object.keys(global.breakers).length;
 
-//     await circuitBreaker(options)(testCtx);
+    const testCtx = {
+      method: 'get',
+      id: 100,
+      ...ctx
+    };
 
-//     assert.strictEqual(Object.keys(global.breakers).length, initialBreakerCount);
-//     assert.deepStrictEqual(testCtx.result, { id: 1, name: 'john' });
-//   });
+    await circuitBreaker(options)(testCtx);
 
-//   it('adds a successful method call response to ctx.result', async () => {
-//     const testCtx = {
-//       method: 'find',
-//       ...ctx
-//     };
+    assert.strictEqual(Object.keys(global.breakers).length, initialBreakerCount);
+    assert.deepStrictEqual(testCtx.result, { id: 1, name: 'john' });
+  });
 
-//     await circuitBreaker(options)(testCtx);
+  it('adds a successful method call response to ctx.result', async () => {
+    const testCtx = {
+      method: 'find',
+      ...ctx
+    };
 
-//     assert.deepStrictEqual(testCtx.result, [{ id: 1, name: 'john' }]);
-//   });
+    await circuitBreaker(options)(testCtx);
 
-//   it('creates a new breaker if options.circuitOwner', async () => {
-//     const testOptions = {
-//       circuitOwner: 'partDeux',
-//       ...options
-//     };
+    assert.deepStrictEqual(testCtx.result, [{ id: 1, name: 'john' }]);
+  });
 
-//     const testCtx = {
-//       method: 'find',
-//       ...ctx
-//     };
+  it('creates a new breaker if options.circuitOwner', async () => {
+    const testOptions = {
+      circuitOwner: 'partDeux',
+      ...options
+    };
 
-//     const initialBreakerCount = Object.keys(global.breakers).length;
+    const testCtx = {
+      method: 'find',
+      ...ctx
+    };
 
-//     await circuitBreaker(testOptions)(testCtx);
+    const initialBreakerCount = Object.keys(global.breakers).length;
 
-//     assert.strictEqual(Object.keys(global.breakers).length, initialBreakerCount + 1);
-//     assert.ok(global.breakers.mockService);
-//     assert.ok(global.breakers['mockService|partDeux']);
-//   });
+    await circuitBreaker(testOptions)(testCtx);
 
-//   it('allows requests through one breaker when another is open', async () => {
-//     const testOptions = {
-//       circuitOwner: 'partDeux',
-//       ...options
-//     };
+    assert.strictEqual(Object.keys(global.breakers).length, initialBreakerCount + 1);
+    assert.ok(global.breakers.mockService);
+    assert.ok(global.breakers['mockService|partDeux']);
+  });
 
-//     const testCtx = {
-//       method: 'find',
-//       ...ctx
-//     };
+  it('allows requests through one breaker when another is open', async () => {
+    const testOptions = {
+      circuitOwner: 'partDeux',
+      ...options
+    };
 
-//     breaker.open();
+    const testCtx = {
+      method: 'find',
+      ...ctx
+    };
 
-//     await circuitBreaker(testOptions)(testCtx);
+    breaker.open();
 
-//     assert.deepStrictEqual(testCtx.result, [{ id: 1, name: 'john' }]);
+    await circuitBreaker(testOptions)(testCtx);
 
-//     breaker.close();
-//   });
+    assert.deepStrictEqual(testCtx.result, [{ id: 1, name: 'john' }]);
 
-//   it('allows concurrent requests of the same method', async () => {
-//     const fry = {
-//       method: 'create',
-//       data: { id: 1 },
-//       ...ctx
-//     };
+    breaker.close();
+  });
 
-//     const rodriguez = {
-//       method: 'create',
-//       data: { id: 2 },
-//       ...ctx
-//     };
+  it('allows concurrent requests of the same method', async () => {
+    const fry = {
+      method: 'create',
+      data: { id: 1 },
+      ...ctx
+    };
 
-//     const leela = {
-//       method: 'create',
-//       data: { id: 3 },
-//       ...ctx
-//     };
+    const rodriguez = {
+      method: 'create',
+      data: { id: 2 },
+      ...ctx
+    };
 
-//     const farnsworth = {
-//       method: 'create',
-//       data: { id: 4 },
-//       ...ctx
-//     };
+    const leela = {
+      method: 'create',
+      data: { id: 3 },
+      ...ctx
+    };
 
-//     const [
-//       philip,
-//       bender,
-//       turanga,
-//       hubert
-//     ] = await Promise.all([
-//       circuitBreaker(options)(fry),
-//       circuitBreaker(options)(rodriguez),
-//       circuitBreaker(options)(leela),
-//       circuitBreaker(options)(farnsworth)
-//     ]);
+    const farnsworth = {
+      method: 'create',
+      data: { id: 4 },
+      ...ctx
+    };
 
-//     assert.deepStrictEqual(philip.result, { id: 1 });
-//     assert.deepStrictEqual(bender.result, { id: 2 });
-//     assert.deepStrictEqual(turanga.result, { id: 3 });
-//     assert.deepStrictEqual(hubert.result, { id: 4 });
-//   });
+    const [
+      philip,
+      bender,
+      turanga,
+      hubert
+    ] = await Promise.all([
+      circuitBreaker(options)(fry),
+      circuitBreaker(options)(rodriguez),
+      circuitBreaker(options)(leela),
+      circuitBreaker(options)(farnsworth)
+    ]);
 
-//   it('allows concurrent requests for different methods', async () => {
-//     const createCall = {
-//       method: 'create',
-//       data: { id: 1 },
-//       ...ctx
-//     };
+    assert.deepStrictEqual(philip.result, { id: 1 });
+    assert.deepStrictEqual(bender.result, { id: 2 });
+    assert.deepStrictEqual(turanga.result, { id: 3 });
+    assert.deepStrictEqual(hubert.result, { id: 4 });
+  });
 
-//     const getCall = {
-//       method: 'get',
-//       id: 300,
-//       ...ctx
-//     };
+  it('allows concurrent requests for different methods', async () => {
+    const createCall = {
+      method: 'create',
+      data: { id: 1 },
+      ...ctx
+    };
 
-//     const findCall = {
-//       method: 'find',
-//       ...ctx
-//     };
+    const getCall = {
+      method: 'get',
+      id: 300,
+      ...ctx
+    };
 
-//     const updateCall = {
-//       method: 'update',
-//       ...ctx
-//     };
+    const findCall = {
+      method: 'find',
+      ...ctx
+    };
 
-//     updateCall.params.delay = 200;
+    const updateCall = {
+      method: 'update',
+      ...ctx
+    };
 
-//     const [
-//       create,
-//       get,
-//       find,
-//       update
-//     ] = await Promise.all([
-//       circuitBreaker(options)(createCall),
-//       circuitBreaker(options)(getCall),
-//       circuitBreaker(options)(findCall),
-//       circuitBreaker(options)(updateCall)
-//     ]);
+    updateCall.params.delay = 200;
 
-//     assert.deepStrictEqual(create.result, { id: 1 });
-//     assert.deepStrictEqual(get.result, { id: 1, name: 'john' });
-//     assert.deepStrictEqual(find.result, [{ id: 1, name: 'john' }]);
-//     assert.deepStrictEqual(update.result, [{ id: 1, name: 'frank' }]);
-//   });
-// });
+    const [
+      create,
+      get,
+      find,
+      update
+    ] = await Promise.all([
+      circuitBreaker(options)(createCall),
+      circuitBreaker(options)(getCall),
+      circuitBreaker(options)(findCall),
+      circuitBreaker(options)(updateCall)
+    ]);
+
+    assert.deepStrictEqual(create.result, { id: 1 });
+    assert.deepStrictEqual(get.result, { id: 1, name: 'john' });
+    assert.deepStrictEqual(find.result, [{ id: 1, name: 'john' }]);
+    assert.deepStrictEqual(update.result, [{ id: 1, name: 'frank' }]);
+  });
+});
 
 
 
