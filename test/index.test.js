@@ -1,7 +1,6 @@
 const assert = require('assert');
 const circuitBreaker = require('../lib');
-const { MockService } = require('./service/mock-service.class');
-
+const { MockService } = require('./services/mock-service/mock-service.class');
 
 describe('Basic Circuit Breaker Functionality', () => {
   let breaker;
@@ -208,12 +207,9 @@ describe('Basic Circuit Breaker Functionality', () => {
   });
 });
 
-
-
 // #####################################################
 //        OLD TESTS JUST FOR REFERENCE AND IDEAS
 // #####################################################
-
 
 // const timeout = async delay => {
 //   return new Promise(resolve => setTimeout(resolve, delay));
