@@ -2,10 +2,15 @@ const adapterTests = require('@feathersjs/adapter-tests');
 const errors = require('@feathersjs/errors');
 const feathers = require('@feathersjs/feathers');
 const services = require('./services');
+const memory = require('feathers-memory');
 
 const app = feathers();
 
 app.configure(services);
+
+app.use('/mock-service', memory({
+  events: ['testing']
+}));
 
 const testSuite = adapterTests([
   '.options',
