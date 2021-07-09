@@ -19,7 +19,7 @@
     "url": "git://github.com/sajov/feathers-opossum.git"
   },
   "author": {
-    "name": "sajov"
+    "name": "bziggz"
   },
   "contributors": [],
   "bugs": {
@@ -39,7 +39,7 @@
     "lint": "semistandard --fix",
     "mocha": "mocha --opts mocha.opts -S",
     "mocha:watch": "mocha --opts mocha.opts -S --watch lib node_modules/@feathersjs/adapter-tests/lib",
-    "test": "npm run lint && npm run dtslint && npm run coverage",
+    "test": "npm run lint && npm run lint && npm run coverage",
     "example": "babel-node example/index",
     "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --opts mocha.opts",
     "travis": "node_modules/.bin/istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --colors --reporter spec test/",

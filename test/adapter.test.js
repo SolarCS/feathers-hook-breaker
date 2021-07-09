@@ -1,10 +1,7 @@
-const assert = require('assert');
 const adapterTests = require('@feathersjs/adapter-tests');
 const errors = require('@feathersjs/errors');
 const feathers = require('@feathersjs/feathers');
-
-const memory = require('feathers-memory');
-const OpossumService = require('../lib');
+const services = require('./services');
 
 const app = feathers();
 
@@ -73,23 +70,10 @@ const testSuite = adapterTests([
   '.find + paginate + params'
 ]);
 
-describe('Feathers Opossum - Memory Tests', () => {
+describe('Feathers Opossum - Adapter Tests', () => {
   before(async () => {
-    const options = {
-      opossum: {
-        timeout: 2000, // If our function takes longer than 3 seconds, trigger a failure
-        errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
-        resetTimeout: 30000 // After 30 seconds, try again.
-      },
-      methods: ['get', 'find']
-    };
-    const service = {
-      events: ['testing']
-    };
-    const serviceOP = OpossumService(memory, service, options);
-
-    app.use('/adapter', serviceOP);
+    app.configure(services);
   });
 
-  testSuite(app, errors, 'adapter');
+  testSuite(app, errors, 'mock-service');
 });
