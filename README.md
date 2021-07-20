@@ -1,3 +1,5 @@
+## Pre-release notes for devs
+
 the breaker itself is located at `/lib/index.js`
 
 a mock service has been created in `test/services`
@@ -17,54 +19,47 @@ Feathers-Hook-Breaker is an Opossum-based circuit breaker built to be called fro
 
 At its core, Feathers-Hook-Breaker works by calling the raw, hookless service '_method' as the breaker action, acting as a hook to the original method call while simultaneously overriding the original method call.
 
-More information about the feathers hook chain is available in the [Feathersjs Docs](https://docs.feathersjs.com/api/hooks.html)
-For more information about the Opossum library, see the [Opossum Docs](https://nodeshift.dev/opossum/)
-More information about circuit breakers in general is available from [Martin Fowler](http://martinfowler.com/bliki/CircuitBreaker.html) or the guys at [Campion](https://campion-breaker.github.io/case-study.html#circuit-breaker-pattern)
+<img width="674" alt="Screen Shot 2021-07-20 at 2 04 44 PM" src="https://user-images.githubusercontent.com/50502798/126388883-31bf3729-3773-4ab3-91a6-5e338c0fac62.png">
+
+- More information about the feathers hook chain is available in the [Feathersjs Docs](https://docs.feathersjs.com/api/hooks.html)
+- For more information about the Opossum library, see the [Opossum Docs](https://nodeshift.dev/opossum/)
+- More information about circuit breakers in general is available from [Martin Fowler](http://martinfowler.com/bliki/CircuitBreaker.html) or the guys at [Campion](https://campion-breaker.github.io/case-study.html#circuit-breaker-pattern)
 
 ## Using the Breaker
 
-To save yourself some headaches later, make sure to follow the instructions carefully, including the 'Notes' section.
+To save yourself some headaches later, make sure to follow the instructions carefully.
 
 ### Setup
 
-Step 1: run `npm install feathers-hook-breaker` from within your working directory.
+First, run `npm install feathers-hook-breaker` from within your working directory.
 
-Step 2: within the to-be-protected service's `class.js` file, make the following changes:
+Then, within the to-be-protected service's `class.js` file, make the following changes:
   1. Require the `AdapterService` from '@feathersjs/adapter-commons' at the top of the file:
-  ```
-  const { AdapterService } = require('@feathersjs/adapter-commons');
-  ```
   2. Have your service extend `AdapterService`, complete with the necessary constructor:
-  ```
-  exports.Messages = class Messages extends AdapterService {
-    constructor (options, app) {
-    super(options, app);
-    this.options = options || {};
-    this.app = app;
-  }
-  ```
-  3. Inside the service, define the hookless (ex: `_create` instead of `create`) version of every method you intend to protect (to protect the entire service, define ALL hookless methods). In the end, an entirely-protected service's `class.js` file would look like this:
+  3. Inside the service, define the hookless (ex: `_create` instead of `create`) version of every method you intend to protect (to protect the entire service, define ALL hookless methods). 
+  4. Unless you plan to override the hookless method beyond the default Feathersjs definition, `return super._theMethod(args)` inside the function definition. In the end, an entirely-protected service's `class.js` file would look like this:
 
-INSERT PROTECTED CLASS IMAGE HERE
+<img width="618" alt="Screen Shot 2021-07-20 at 6 00 03 PM" src="https://user-images.githubusercontent.com/50502798/126400999-ef259f59-23cd-474f-a011-9ca5ae31ecf9.png">
 
-- The hookless functions defined in your now-protected class should call `super(...args)` only as a default, as though the `AdapterService` was making the actual call. Feel free to replace `super(...args)` with whatever functionality you require. That being said...
+- The hookless functions defined in your now-protected class should call `super._method(...args)` only as a default, as though the `AdapterService` was making the actual call. Feel free to replace `super._method(...args)` with whatever functionality you require. That being said...
 - **DO NOT CATCH ERRORS WITH YOUR HOOKLESS METHODS.** The breaker operates by interpreting any timeouts or error responses, so if those errors are caught by the method call the breaker won't be able to use them. Opossum includes an `errorFilter` that will allow errors to pass through without tripping the breaker. Feathers-Hook-Breaker will throw those errors itself, so **DO NOT CATCH ERRORS WITH YOUR HOOKLESS METHODS.**
 
 ### Usage 
 
 Require 'feathers-hook-breaker' in whichever file you define your actual breaker hook function, and assign it to a function variable. Create a new asynchronous hook function, and await the new breaker function within the hook function, passing in any desired breaker init options, and calling it with a binding to the context object.
 
-INSERT HOOK FUNCTION IMAGE HERE
+<img width="590" alt="Screen Shot 2021-07-20 at 2 46 51 PM" src="https://user-images.githubusercontent.com/50502798/126388719-f2ce251b-0ca5-4a72-837f-a7750d25abae.png">
 
+*Don't forget the* `.call(this, ctx)` *suffix when you call the breaker itself*
 ### Inserting the Breaker into the Hook Chain
 
 If no other `before` hooks are required by the method, the breaker function can then be called in the `before.all` hook chain:
 
-INSERT ALL HOOK IMAGE HERE
+<img width="352" alt="Screen Shot 2021-07-20 at 2 57 32 PM" src="https://user-images.githubusercontent.com/50502798/126388822-ca5c9d96-efe4-4e07-90e3-4d1e8608786d.png">
 
-However, because the breaker will make the actual method call from within the hook, and because of the hook chain order (`before.all` hooks prioe to `before[method]` hooks), if there are any other hooks required, the breaker hook function must be called AFTER any other hooks in the chain:
+However, because the breaker will make the actual method call from within the hook, and because of the hook chain order (`before.all` hooks prior to `before[method]` hooks), if there are any other hooks required, the breaker hook function must be called AFTER any other hooks in the chain:
 
-INSERT REDUNDANT HOOK IMAGE HERE
+<img width="356" alt="Screen Shot 2021-07-20 at 2 56 41 PM" src="https://user-images.githubusercontent.com/50502798/126388781-a333d8fb-ee9f-4803-ae50-5f2f965f14f8.png">
 
 ### Events
 
