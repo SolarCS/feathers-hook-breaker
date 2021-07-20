@@ -50,8 +50,6 @@ describe('Basic Circuit Breaker Functionality', () => {
     assert.ok(global.breakers.mockService);
 
     breaker = global.breakers.mockService;
-
-    console.log(breaker.stats.fires); // delete this once breaker is used elsewhere - to pass linting
   });
 
   it('uses the same circuit breaker for a different method', async () => {
@@ -204,6 +202,64 @@ describe('Basic Circuit Breaker Functionality', () => {
     assert.deepStrictEqual(get.result, { id: 1, name: 'john' });
     assert.deepStrictEqual(find.result, [{ id: 1, name: 'john' }]);
     assert.deepStrictEqual(update.result, [{ id: 1, name: 'frank' }]);
+  });
+
+  it('adds event listeners when given valid fields and functions', async () => {
+    const eventedOptions = {
+      circuitOwner: 'events',
+      onReject: () => console.log('Rejected, circuit open'),
+      ...options
+    };
+
+    const testCtx = {
+      method: 'find',
+      ...ctx
+    };
+
+    await circuitBreaker(eventedOptions)(testCtx);
+
+    const eventedBreaker = global.breakers['mockService|events'];
+
+    const onRejectListener = eventedBreaker._events.reject
+      .filter(func => func.name === 'onReject')[0];
+
+    assert.ok(onRejectListener);
+    assert.ok(typeof onRejectListener === 'function');
+  });
+
+  it('does not add event listeners when given invalid fields', async () => {
+    const uneventedOptions = {
+      circuitOwner: 'invalidEvents',
+      success: () => console.log('Success!!'),
+      onNotABaseEvent: () => console.log('Rejected, circuit open'),
+      ...options
+    };
+
+    const testCtx = {
+      method: 'find',
+      ...ctx
+    };
+
+    await circuitBreaker(uneventedOptions)(testCtx);
+
+    const uneventedBreaker = global.breakers['mockService|invalidEvents'];
+
+    // test against event without 'on' prefix
+    const successListeners = uneventedBreaker._events.success
+      .filter(func => func.name === 'success');
+
+    assert.ok(!successListeners.includes('success'));
+
+    // test non-baseEvent
+    const invalidListenerCheck = () => {
+      const listeners = Object.keys(uneventedBreaker._events)
+        .flatMap(event => uneventedBreaker._events[event])
+        .map(func => func.name);
+
+      return listeners.includes('onNotABaseEvent');
+    };
+
+    assert.ok(!invalidListenerCheck());
   });
 });
 
