@@ -68,20 +68,26 @@ However, because the breaker will make the actual method call from within the ho
 Opossum is built with event-based functionality, and allows event listener functions to be added to the breaker. To do this, add a key-value pair to the options passed to the breaker in the following format:
   - key: prepend one of Opossum's emitted events with the keyword `on`, in camelCase style (`onSuccess`, `onReject`, `onClose`)
   - value: define the function to be executed when the event is emitted
-
-INSERT EVENT IMAGE HERE
-
+ 
 At this time, only the events outlined in the [Opossum Docs](https://nodeshift.dev/opossum/) are emitted.
+
+*Example at line 8 in the image below:*
+
+<img width="584" alt="Screen Shot 2021-07-20 at 6 07 59 PM" src="https://user-images.githubusercontent.com/50502798/126401635-80ac7bba-5d35-4c0b-9f6b-3af582f354e3.png">
 
 ### The Fallback Function
 
+*Example at lines 9-19 in the above image.*
+
 The fallback function is the function that will be executed if either a) the method call fails, or b) the breaker is already open. 
 
-Feathers-Hook-Breaker naturally passed the current state of the breaker, pre-method-call, to the fallback function. Feel free to include this boolean param in your fallback function if you want to handle method call rejections (`breakerIsOpen === true`)differently from method call failures (`breakerIsOpen === false`).
+Feathers-Hook-Breaker naturally passes the current state of the breaker, pre-method-call, to the fallback function. Feel free to include this boolean param in your fallback function if you want to handle method call rejections (`breakerIsOpen === true`) differently from method call failures (`breakerIsOpen === false`).
 
 If the fallback function is called, its return is the value that is assigned to `ctx.result` in leiu of the successful response.
 
-### Options
+*Note that the fallback function field is* `fallback`, *not* `onFallback`. `onFallback` *would be a valid listener function to be called any time the* `fallback` *function executed.*
+
+### A Note on Options
 
 Feathers-Hook-Breaker's default configuration is for a 3-second timeout, a 10-second `halfOpen` state, and failure settings configured to trip the breaker after a single failure (10000req/sec volume).
 
