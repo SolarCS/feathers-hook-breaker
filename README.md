@@ -37,9 +37,11 @@ Then, within the to-be-protected service's `class.js` file, make the following c
   1. Require the `AdapterService` from '@feathersjs/adapter-commons' at the top of the file:
   2. Have your service extend `AdapterService`, complete with the necessary constructor:
   3. Inside the service, define the hookless (ex: `_create` instead of `create`) version of every method you intend to protect (to protect the entire service, define ALL hookless methods). 
-  4. Unless you plan to override the hookless method beyond the default Feathersjs definition, `return super._theMethod(args)` inside the function definition. In the end, an entirely-protected service's `class.js` file would look like this:
+  4. Unless you plan to override the hookless method beyond the default Feathersjs definition, `return super._theMethod(args)` inside the function definition.
 
-<img width="618" alt="Screen Shot 2021-07-20 at 6 00 03 PM" src="https://user-images.githubusercontent.com/50502798/126400999-ef259f59-23cd-474f-a011-9ca5ae31ecf9.png">
+In the end, an entirely-protected service's `class.js` file would look like this:
+
+<img width="611" alt="Screen Shot 2021-07-20 at 6 15 09 PM" src="https://user-images.githubusercontent.com/50502798/126402261-5b91c94f-875a-4ede-873b-d395350a5ba0.png">
 
 - The hookless functions defined in your now-protected class should call `super._method(...args)` only as a default, as though the `AdapterService` was making the actual call. Feel free to replace `super._method(...args)` with whatever functionality you require. That being said...
 - **DO NOT CATCH ERRORS WITH YOUR HOOKLESS METHODS.** The breaker operates by interpreting any timeouts or error responses, so if those errors are caught by the method call the breaker won't be able to use them. Opossum includes an `errorFilter` that will allow errors to pass through without tripping the breaker. Feathers-Hook-Breaker will throw those errors itself, so **DO NOT CATCH ERRORS WITH YOUR HOOKLESS METHODS.**
