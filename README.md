@@ -22,7 +22,7 @@ basically everything else in the repo is leftover from the original repo templat
 
 Feathers-Hook-Breaker is an Opossum-based circuit breaker built to be called from within the hook chain of a service method call. As a default, FHB protects the entire service, but allows for more granular protection by including a `circuitOwner` field in the options passed to the breaker.
 
-At its core, Feathers-Hook-Breaker works by calling the raw, hookless service '_method' as the breaker action, acting as a hook to the original method call while simultaneously overriding the original method call.
+At its core, Feathers-Hook-Breaker works by calling the raw, hookless `service._someMethod` as the breaker action, acting as a hook to the original method call while simultaneously overriding the original method call.
 
 <img width="1024" alt="Screen Shot 2021-07-21 at 1 42 05 PM" src="https://user-images.githubusercontent.com/50502798/126534927-697700bc-24f9-4d29-b4e6-997676325e83.png">
 
