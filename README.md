@@ -41,27 +41,128 @@ Then, within the to-be-protected service's `class.js` file, make the following c
 
 In the end, an entirely-protected service's `class.js` file would look like this:
 
-<img width="611" alt="Screen Shot 2021-07-20 at 6 15 09 PM" src="https://user-images.githubusercontent.com/50502798/126402261-5b91c94f-875a-4ede-873b-d395350a5ba0.png">
+```javascript
+const { AdapterService } = require('@feathersjs/adapter-commons');
 
-- The hookless functions defined in your now-protected class should call `super._method(...args)` only as a default, as though the `AdapterService` was making the actual call. Feel free to replace `super._method(...args)` with whatever functionality you require. That being said...
+exports.SomeService = class SomeService extends AdapterService {
+  constructor (options, app) {
+    super(options, app);
+    this.options = options || {};
+    this.app = app;
+  }
+  
+  async _find (params) {
+    return super._find(params);
+  }
+  
+  async _get (id, params) {
+    return super._get(id, params);
+  }
+  
+  async _create (data, params) {
+    return super._create(data, params);
+  }
+  
+  async _update (id, data, params) {
+    return super._update(id, data, params);
+  }
+  
+  async _patch (id, data, params) {
+    return super._patch(id, data, params);
+  }
+  
+  async _remove (id, params) {
+    return super._remove(id, params);
+  }
+};
+```
+
+- The hookless functions defined in your now-protected class should call `super._method(args)` only as a default, as though the `AdapterService` was making the actual call. Feel free to replace `super._method(args)` with whatever functionality you require. That being said...
 - **DO NOT CATCH ERRORS WITH YOUR HOOKLESS METHODS.** The breaker operates by interpreting any timeouts or error responses, so if those errors are caught by the method call the breaker won't be able to use them. Opossum includes an `errorFilter` that will allow errors to pass through without tripping the breaker. Feathers-Hook-Breaker will throw those errors itself, so **DO NOT CATCH ERRORS WITH YOUR HOOKLESS METHODS.**
 
 ### Usage 
 
 Require 'feathers-hook-breaker' in whichever file you define your actual breaker hook function, and assign it to a function variable. Create a new asynchronous hook function, and await the new breaker function within the hook function, passing in any desired breaker init options, and calling it with a binding to the context object.
 
-<img width="590" alt="Screen Shot 2021-07-20 at 2 46 51 PM" src="https://user-images.githubusercontent.com/50502798/126388719-f2ce251b-0ca5-4a72-837f-a7750d25abae.png">
+``` javascript
+const FHB = require('feathers-hook-breaker');
 
-*Don't forget the* `.call(this, ctx)` *suffix when you call the breaker itself*
+const breakerHookFunction = (options = {}) => {
+  return async ctx => {
+    const breakerOptions = {
+      timeout: 2500,
+      resetTimeout: 8000,
+      onSuccess: () => console.log('Successful method call'),
+      fallback: (breakerIsOpen) => {
+        if (breakerIsOpen) {
+          console.log('Method call skipped, breaker open.');
+        } else {
+          console.log('Method call failed');
+        }
+        
+        return {
+          status: 'fallback called',
+          ...ctx.data
+        }
+      },
+      ...options
+    };
+    
+    await FHB(breakerOptions).call(this, ctx);
+    
+    return ctx;
+  };
+};
+```
+
+*Don't forget the* `.call(this, ctx)` *suffix when you call the breaker itself.*
+
 ### Inserting the Breaker into the Hook Chain
 
 If no other `before` hooks are required by the method, the breaker function can then be called in the `before.all` hook chain:
 
-<img width="352" alt="Screen Shot 2021-07-20 at 2 57 32 PM" src="https://user-images.githubusercontent.com/50502798/126388822-ca5c9d96-efe4-4e07-90e3-4d1e8608786d.png">
+```javascript
+module.exports = {
+  before: {
+    all: [ breakerHookFunction() ],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  
+  after: {
+    ......
+```
 
 However, because the breaker will make the actual method call from within the hook, and because of the hook chain order (`before.all` hooks prior to `before[method]` hooks), if there are any other hooks required, the breaker hook function must be called AFTER any other hooks in the chain:
 
-<img width="356" alt="Screen Shot 2021-07-20 at 2 56 41 PM" src="https://user-images.githubusercontent.com/50502798/126388781-a333d8fb-ee9f-4803-ae50-5f2f965f14f8.png">
+```javascript
+module.exports = {
+  before: {
+    all: [ authenticate() ],
+    find: [ breakerHookFunction() ],
+    get: [ breakerHookFunction() ],
+    create: [
+      validateDate(),
+      breakerHookFunction()
+    ],
+    update: [
+      validateDate(),
+      breakerHookFunction()
+    ],
+    patch: [
+      validateDate(),
+      breakerHookFunction()
+    ],
+    remove: [ breakerHookFunction() ]
+  },
+  
+  after: {
+    ......
+```
 
 ### Events
 
@@ -71,15 +172,19 @@ Opossum is built with event-based functionality, and allows event listener funct
   - key: prepend one of Opossum's emitted events with the keyword `on`, in camelCase style (`onSuccess`, `onReject`, `onClose`)
   - value: define the function to be executed when the event is emitted
  
-At this time, only the events outlined in the [Opossum Docs](https://nodeshift.dev/opossum/) are emitted.
+At this time, only the events outlined in the [Opossum Docs](https://github.com/nodeshift/opossum#events) are emitted.
 
-*Example at line 8 in the image below:*
-
-<img width="584" alt="Screen Shot 2021-07-20 at 6 07 59 PM" src="https://user-images.githubusercontent.com/50502798/126401635-80ac7bba-5d35-4c0b-9f6b-3af582f354e3.png">
+```javascript
+const breakerOptions = {
+  onSuccess: () => console.log('Successful method call'),
+  onClose: () => {
+    tellSomeQueueServiceToStartRetrying();
+  }
+};
+```
+  
 
 ### The Fallback Function
-
-*Example at lines 9-19 in the above image.*
 
 The fallback function is the function that will be executed if either a) the method call fails, or b) the breaker is already open. 
 
@@ -87,7 +192,24 @@ Feathers-Hook-Breaker naturally passes the current state of the breaker, pre-met
 
 If the fallback function is called, its return is the value that is assigned to `ctx.result` in leiu of the successful response.
 
-*Note that the fallback function field is* `fallback`, *not* `onFallback`. `onFallback` *would be a valid listener function to be called any time the* `fallback` *function executed.*
+```javascript
+const breakerOptions = {
+  fallback: (breakerIsOpen) => {
+    if (breakerIsOpen) {
+      console.log('Method call skipped, breaker open.');
+    } else {
+      console.log('Unsuccessful method call.');
+    }
+    
+    return {
+      status: 'fallback called',
+      ...ctx.data
+    }
+  }
+};
+```
+
+*Note that the fallback function field is* `fallback`*, not* `onFallback`. `onFallback` *would be a valid listener function to be called any time the* `fallback` *function executes.*
 
 ### A Note on Options
 
@@ -95,4 +217,39 @@ Feathers-Hook-Breaker's default configuration is for a 3-second timeout, a 10-se
 
 To override the timeout or the `halfOpen` time, include the fields `timeout` and `resetTimeout`, respectively, in your breaker options.
 
-To override the single-failure settings, and trip the breaker based on a percentage of failures, include the `rollingCountTimeout`, `rollingCountBuckets`, and `errorThresholdPercentage` fields in your breaker options.
+To override the single-failure settings, and trip the breaker based on a percentage of failures, include the `rollingCountTimeout`, `rollingCountBuckets`, and `errorThresholdPercentage` fields in your breaker options. [Here](https://github.com/nodeshift/opossum#calculating-errorthresholdpercentage) is more information about Opossum's `errorThresholdPercentage`.
+
+### Manipulating the Breaker
+
+Feathers-Hook-Breaker stores the various breaker configuration objects in a global object called `breakers`. This allows the breakers to be accessed and manipulated by calling `global.breakers[someBreakerName]` after initializing a breaker. This is especially useful for testing, as it allows hard-coded breaker manipulation. Three frequent uses of hard-coded breaker manipulation are:
+- Adjusting the `timeout` or `resetTimeout` settings to speed up the test run
+- Forcing the breaker to the open or close state to test fallback functions (via `.open()` or `.close()` breaker methods)
+- Accessing the `.stats` object, in order to track the breaker's event emission records
+
+By default, the key where the breaker is stored is the name of the service (all lowercase). If `options.circuitOwner` is passed to the breaker on initialization, the breaker is stored at  is `nameOfTheService + '|' + options.circuitOwner`
+
+```javascript
+describe('circuit breaker tests', () => {
+  let testBreaker;
+
+  before('create circuit breaker', async () => {
+    await app.service('testService').find();
+
+    testBreaker = global.breakers['testService'];
+    testBreaker.options.resetTimeout = 500;
+  });
+  
+  it('tests the fallback function', () => {
+    testBreaker.open();
+    
+    await app.service('testService').find();
+    
+    assert.ok('something something fallback function return');
+    assert.ok(testBreaker.stats.fallbacks === 1);
+    
+    testBreaker.close();
+  });
+});
+```
+
+Additionally, all active breakers can be found by accessing `global.breakers` directly.
