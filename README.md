@@ -238,16 +238,16 @@ describe('circuit breaker tests', () => {
   let testBreaker;
 
   before('create circuit breaker', async () => {
-    await app.service('testService').find();
+    await app.service('test-service').find();
 
-    testBreaker = global.breakers['testService'];
+    testBreaker = global.breakers['test-service'];
     testBreaker.options.resetTimeout = 500;
   });
   
   it('tests the fallback function', () => {
     testBreaker.open();
     
-    await app.service('testService').find();
+    await app.service('test-service').find();
     
     assert.ok('something something fallback function return');
     assert.ok(testBreaker.stats.fallbacks === 1);
