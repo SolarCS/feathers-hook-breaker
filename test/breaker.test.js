@@ -1,6 +1,10 @@
-const assert = require('assert');
+const { assert } = require('chai');
 const circuitBreaker = require('../lib/breaker');
 const { MockService } = require('./services/mock-service/mock-service.class');
+
+const sleep = async delay => {
+  return new Promise(resolve => setTimeout(resolve, delay));
+};
 
 describe('Basic Circuit Breaker Functionality', () => {
   let breaker;
@@ -24,13 +28,12 @@ describe('Basic Circuit Breaker Functionality', () => {
   };
 
   const options = {
-    timeout: 3000, // If our function takes longer than 0.2 seconds, trigger a failure
-    resetTimeout: 3000, // After 3 seconds, try again.
+    timeout: 500, // If our function takes longer than 0.5 seconds, trigger a failure
+    resetTimeout: 1000, // After 1 second, try again.
     fallback: () => {
-      console.log('FALLBACK !!!!!!!!!!!!!');
+      // console.log('FALLBACK !!!!!!!!!!!!!');
       return {
-        fallback: 'called',
-        method: ctx.method
+        fallback: 'called'
       };
     },
     ...singleFailureSettings
@@ -116,6 +119,8 @@ describe('Basic Circuit Breaker Functionality', () => {
     assert.deepStrictEqual(testCtx.result, [{ id: 1, name: 'john' }]);
 
     breaker.close();
+
+    delete global.breakers['mockService|partDeux'];
   });
 
   it('allows concurrent requests of the same method', async () => {
@@ -212,7 +217,7 @@ describe('Basic Circuit Breaker Functionality', () => {
     };
 
     const testCtx = {
-      method: 'find',
+      method: 'remove',
       ...ctx
     };
 
@@ -225,6 +230,8 @@ describe('Basic Circuit Breaker Functionality', () => {
 
     assert.ok(onRejectListener);
     assert.ok(typeof onRejectListener === 'function');
+
+    delete global.breakers['mockService|events'];
   });
 
   it('does not add event listeners when given invalid fields', async () => {
@@ -236,7 +243,7 @@ describe('Basic Circuit Breaker Functionality', () => {
     };
 
     const testCtx = {
-      method: 'find',
+      method: 'patch',
       ...ctx
     };
 
@@ -260,6 +267,115 @@ describe('Basic Circuit Breaker Functionality', () => {
     };
 
     assert.ok(!invalidListenerCheck());
+
+    delete global.breakers['mockService|invalidEvents'];
+  });
+
+  it('flips the breaker and executes the provided fallback after a failed request', async () => {
+    const testCtx = {
+      method: 'find',
+      ...ctx
+    };
+
+    testCtx.params.delay = 1000;
+
+    const test = await circuitBreaker(options)(testCtx);
+
+    assert.ok(breaker.opened);
+    assert.strictEqual(test.result.fallback, 'called');
+    breaker.close();
+  });
+
+  it('stops traffic and executes the provided fallback when opened after a failure', async () => {
+    const testCtx = {
+      method: 'find',
+      ...ctx
+    };
+
+    testCtx.params.delay = 1000;
+
+    await circuitBreaker(options)(testCtx);
+
+    testCtx.params.delay = 100;
+
+    const [
+      test1,
+      test2,
+      test3
+    ] = await Promise.all([
+      circuitBreaker(options)(testCtx),
+      circuitBreaker(options)(testCtx),
+      circuitBreaker(options)(testCtx)
+    ]);
+
+    assert.strictEqual(test1.result.fallback, 'called');
+    assert.strictEqual(test2.result.fallback, 'called');
+    assert.strictEqual(test3.result.fallback, 'called');
+
+    breaker.close();
+  });
+
+  it('recloses after a successful test request', async () => {
+    const testCtx = {
+      method: 'find',
+      ...ctx
+    };
+
+    breaker.open();
+
+    await sleep(1100);
+
+    const test = await circuitBreaker(options)(testCtx);
+
+    assert.deepStrictEqual(test.result, [{ id: 1, name: 'john' }]);
+    assert.ok(breaker.closed);
+  });
+
+  it('reopens after an unsuccessful test request', async () => {
+    const testCtx = {
+      method: 'find',
+      ...ctx
+    };
+
+    breaker.open();
+
+    await sleep(1100);
+
+    testCtx.params.delay = 1000;
+
+    const test = await circuitBreaker(options)(testCtx);
+
+    assert.strictEqual(test.result.fallback, 'called');
+    assert.ok(breaker.opened);
+
+    breaker.close();
+  });
+
+  it('exectues the default fallback if not given a fallback function', async () => {
+    const testCtx = {
+      method: 'patch',
+      id: 1000,
+      data: {
+        name: 'Philip J Fry'
+      },
+      ...ctx
+    };
+
+    const testOptions = { ...options };
+
+    delete testOptions.fallback;
+
+    const test = await circuitBreaker(testOptions)(testCtx);
+
+    const expectedResult = {
+      status: 'fallback called',
+      id: 1000,
+      data: { name: 'Philip J Fry' },
+      params: { delay: 1000 }
+    };
+
+    assert.ok(breaker.open);
+    assert.deepStrictEqual(test.result, expectedResult);
   });
 });
 
