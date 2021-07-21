@@ -376,6 +376,8 @@ describe('Basic Circuit Breaker Functionality', () => {
 
     assert.ok(breaker.open);
     assert.deepStrictEqual(test.result, expectedResult);
+    
+    breaker.close();
   });
 });
 
