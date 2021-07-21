@@ -1,4 +1,4 @@
-const circuitBreaker = require('../../../lib');
+const circuitBreaker = require('../../../lib/breaker');
 
 const breakerOptions = {
   fallback: () => {
