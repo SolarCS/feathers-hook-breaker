@@ -18,7 +18,7 @@ basically everything else in the repo is leftover from the original repo templat
 ![Node.js CI](https://github.com/nodeshift/opossum/workflows/Node.js%20CI/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/nodeshift/opossum/badge.svg?branch=master)](https://coveralls.io/github/nodeshift/opossum?branch=master)
 [![Known Vulnerabilities](https://snyk.io/test/npm/opossum/badge.svg)](https://snyk.io/test/npm/opossum)
-[![Dependencies Status](https://nodeshift.dev/opossum/status.svg)](https://nodeshift.dev/opossum)
+[![Dependencies Status](https://david-dm.org/nodeshift/opossum/status.svg)](https://david-dm.org/nodeshift/opossum/status.svg)
 
 Feathers-Hook-Breaker is an Opossum-based circuit breaker built to be called from within the hook chain of a service method call. As a default, FHB protects the entire service, but allows for more granular protection by including a `circuitOwner` field in the options passed to the breaker.
 
