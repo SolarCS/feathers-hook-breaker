@@ -195,7 +195,7 @@ The fallback function is the function that will be executed if either a) the met
 
 Feathers-Hook-Breaker naturally passes the current state of the breaker, pre-method-call, to the fallback function. Feel free to include this boolean param in your fallback function if you want to handle method call rejections (`breakerIsOpen === true`) differently from method call failures (`breakerIsOpen === false`).
 
-If the fallback function is called, its return is the value that is assigned to `ctx.result` in leiu of the successful response. *If the fallback function does not return anything, `ctx.result` will be set to `undefined`
+If the fallback function is called, its return is the value that is assigned to `ctx.result` in leiu of the successful response. *If the fallback function does not return anything,* `ctx.result` *will be set to* `undefined`.
 
 ```javascript
 const breakerOptions = {
