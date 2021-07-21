@@ -1,5 +1,5 @@
 const assert = require('assert');
-const circuitBreaker = require('../lib');
+const circuitBreaker = require('../lib/breaker');
 const { MockService } = require('./services/mock-service/mock-service.class');
 
 describe('Basic Circuit Breaker Functionality', () => {

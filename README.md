@@ -1,12 +1,12 @@
 ## Pre-release notes for devs
 
-the breaker itself is located at `/lib/index.js`
+the breaker itself is located at `/lib/breaker.js`
 
 a mock service has been created in `test/services`
 
 `test/adapter.test.js` tests the `feathers-adapters` suite
 
-`test/index.test.js` tests the basic circuit-breaker functionality
+`test/breaker.test.js` tests the basic circuit-breaker functionality
 
 to run the test suite, call `npm run test`. this will run the entire suite, so comment out any tests you don't want run
 
@@ -190,7 +190,7 @@ The fallback function is the function that will be executed if either a) the met
 
 Feathers-Hook-Breaker naturally passes the current state of the breaker, pre-method-call, to the fallback function. Feel free to include this boolean param in your fallback function if you want to handle method call rejections (`breakerIsOpen === true`) differently from method call failures (`breakerIsOpen === false`).
 
-If the fallback function is called, its return is the value that is assigned to `ctx.result` in leiu of the successful response.
+If the fallback function is called, its return is the value that is assigned to `ctx.result` in leiu of the successful response. *If the fallback function does not return anything, `ctx.result` will be set to `undefined`
 
 ```javascript
 const breakerOptions = {
