@@ -231,7 +231,7 @@ Feathers-Hook-Breaker stores the various breaker configuration objects in a glob
 - Forcing the breaker to the open or close state to test fallback functions (via `.open()` or `.close()` breaker methods)
 - Accessing the `.stats` object, in order to track the breaker's event emission records
 
-By default, the key where the breaker is stored is the name of the service (all lowercase). If `options.circuitOwner` is passed to the breaker on initialization, the breaker is stored at  is `nameOfTheService + '|' + options.circuitOwner`
+By default, the key where the breaker is stored is the name of the service. If `options.circuitOwner` is passed to the breaker on initialization, the breaker is stored at  is `nameOfTheService + '|' + options.circuitOwner`
 
 ```javascript
 describe('circuit breaker tests', () => {
