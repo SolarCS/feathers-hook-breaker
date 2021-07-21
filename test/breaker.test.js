@@ -351,7 +351,7 @@ describe('Basic Circuit Breaker Functionality', () => {
     breaker.close();
   });
 
-  it('exectues the default fallback if not given a fallback function', async () => {
+  it('executes the default fallback if not given a fallback function', async () => {
     const testCtx = {
       method: 'patch',
       id: 1000,
