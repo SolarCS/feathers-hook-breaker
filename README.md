@@ -19,7 +19,7 @@ Feathers-Hook-Breaker is an Opossum-based circuit breaker built to be called fro
 
 At its core, Feathers-Hook-Breaker works by calling the raw, hookless service '_method' as the breaker action, acting as a hook to the original method call while simultaneously overriding the original method call.
 
-<img width="674" alt="Screen Shot 2021-07-20 at 2 04 44 PM" src="https://user-images.githubusercontent.com/50502798/126388883-31bf3729-3773-4ab3-91a6-5e338c0fac62.png">
+<img width="1024" alt="Screen Shot 2021-07-21 at 1 42 05 PM" src="https://user-images.githubusercontent.com/50502798/126534927-697700bc-24f9-4d29-b4e6-997676325e83.png">
 
 - More information about the feathers hook chain is available in the [Feathersjs Docs](https://docs.feathersjs.com/api/hooks.html)
 - For more information about the Opossum library, see the [Opossum Docs](https://nodeshift.dev/opossum/)
