@@ -10,7 +10,7 @@ a mock service has been created in `test/services`
 
 to run the test suite, call `npm run test`. this will run the entire suite, so comment out any tests you don't want run
 
-basically everything else in the repo is leftover from the original repo template (feathers-opossum)
+to run the test suite with continuous re-run, call `npm run mocha:watch`
 
 
 ## Feathers-Hook-Breaker
