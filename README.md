@@ -14,6 +14,10 @@ to run the test suite, call `npm run test`. this will run the entire suite, so c
 
 to run the test suite with continuous re-run, call `npm run mocha:watch`
 
+LEFT TO DO:
+- Find a way to test the error-catching function of the breaker. I know it works, because it works in the Gateway. But without simulating HTTP responses, I can't seem to get the breaker to interpret the error correctly.
+- Confirm that you need to call `super._theMethod(args)` in the service.class.js file. Currently that's just an educated assumption.
+
 
 ## Feathers-Hook-Breaker
 
