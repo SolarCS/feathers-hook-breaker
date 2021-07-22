@@ -17,7 +17,7 @@ to run the test suite with continuous re-run, call `npm run mocha:watch`
 LEFT TO DO:
 - Find a way to test the error-catching function of the breaker. I know it works, because it works in the Gateway. But without simulating HTTP responses, I can't seem to get the breaker to interpret the error correctly. (Ugh. Either there's a legit way to do this, or, as the Black Crowes would say, "Am I just plain lazy?")
 - Confirm that you need to call `super._theMethod(args)` in the service.class.js file. Currently that's just an educated assumption.
-- On the same note, the setup/usage may be different if using various DB adapters (such as feathers-sequelize). Need to figure that out as well.
+- On the same note, the setup/usage may be different if using various DB adapters (such as feathers-sequelize). Need to figure that out as well. Initial research suggests that if using an adapter, you'l still need to include the `_method` definitions in the class, but `class XXX extends Service` should cover the inheritance chain.
 
 
 ## Feathers-Hook-Breaker
