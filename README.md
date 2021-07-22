@@ -39,7 +39,7 @@ At its core, Feathers-Hook-Breaker works by calling the raw, hookless `service._
 
 ## Using the Breaker
 
-To save yourself some headaches later, make sure to follow the instructions carefully.
+To save yourself some headaches later, make sure to follow the instructions carefully. Or don't. I'm not a cop.
 
 ### Setup
 
