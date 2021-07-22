@@ -176,8 +176,6 @@ module.exports = {
 Opossum is built with event-based functionality, and allows event listener functions to be added to the breaker. To do this, add a key-value pair to the options passed to the breaker in the following format:
   - key: prepend one of Opossum's emitted events with the keyword `on`, in camelCase style (`onSuccess`, `onReject`, `onClose`)
   - value: define the function to be executed when the event is emitted
- 
-At this time, only the events outlined in the [Opossum Docs](https://github.com/nodeshift/opossum#events) are emitted.
 
 ```javascript
 const breakerOptions = {
@@ -187,7 +185,33 @@ const breakerOptions = {
   }
 };
 ```
-  
+
+The arguments passed/available to the event listener functions aren't consistent. For example, the `'success'` event passes the response object to the listener function, while the `'fallback'` event passes the return from the `fallback` function. Most, if not all, other events don't pass arguments to the listener function at all. 
+
+To work with data in the event listener functions, define a data type in the `breakerHookFunction` scope, and access (and return) that data in the listener function:
+
+```javascript
+const breakerHookFunction = (options = {}) => {
+  return async ctx => {
+    const logObject = {};
+
+    const breakerOptions = {
+      onOpen: () => {
+        logObject.openedAt = Date.now();
+        return logObject;
+      },
+    };
+    
+    await FHB(breakerOptions).call(this, ctx);
+
+    if (logObject.openedAt) {
+      sendLogObjectToLogService();
+    }
+    
+    return ctx;
+  };
+};
+```
 
 ### The Fallback Function
 

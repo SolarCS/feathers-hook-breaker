@@ -271,6 +271,39 @@ describe('Basic Circuit Breaker Functionality', () => {
     delete global.breakers['mockService|invalidEvents'];
   });
 
+  it('executes the event listener functions', async () => {
+    const testReturn = {};
+
+    const eventedOptions = {
+      circuitOwner: 'events',
+      onReject: () => {
+        testReturn.onReject = 'reject event function executed';
+        return testReturn;
+      },
+      onOpen: () => {
+        testReturn.onOpen = 'open event function executed';
+        return testReturn;
+      },
+      ...options
+    };
+
+    const testCtx = {
+      method: 'remove',
+      ...ctx
+    };
+
+    await circuitBreaker(eventedOptions)(testCtx);
+
+    global.breakers['mockService|events'].open();
+
+    await circuitBreaker(eventedOptions)(testCtx);
+
+    assert.strictEqual(testReturn.onReject, 'reject event function executed');
+    assert.strictEqual(testReturn.onOpen, 'open event function executed');
+
+    delete global.breakers['mockService|events'];
+  });
+
   it('flips the breaker and executes the provided fallback after a failed request', async () => {
     const testCtx = {
       method: 'find',
@@ -376,236 +409,7 @@ describe('Basic Circuit Breaker Functionality', () => {
 
     assert.ok(breaker.open);
     assert.deepStrictEqual(test.result, expectedResult);
-    
+
     breaker.close();
   });
 });
-
-// #####################################################
-//        OLD TESTS JUST FOR REFERENCE AND IDEAS
-// #####################################################
-
-// const timeout = async delay => {
-//   return new Promise(resolve => setTimeout(resolve, delay));
-// };
-// await timeout(1200);
-
-// describe('Feathers Opossum Tests Methods', () => {
-//   before(async () => {
-//     // These settings are configured to trip the breaker after the first failure,
-//     // rather than a percentage of failures
-//     const singleFailureSettings = {
-//       rollingCountTimeout: 10, // listens for failures for 10ms
-//       rollingCountBuckets: 1, // tracks failures for the entire 10ms block
-//       errorThresholdPercentage: 1 // breaker trips if greater than 1/100 attempts within 10ms fail
-//     };
-
-//     const options = {
-//       opossum: {
-//         timeout: 200, // If our function takes longer than 0.2 seconds, trigger a failure
-//         resetTimeout: 3000, // After 3 seconds, try again.
-//         ...singleFailureSettings
-//       }
-//     };
-
-//     const mockService = CircuitBreaker(Service, { delay: 100 }, options);
-//     app.use('/adapter', mockService);
-//   });
-
-//   it('adapter class methods', async () => {
-//     assert.strictEqual(typeof app.service('adapter').get, 'function', 'Error', 'Got not a response status');
-//     assert.strictEqual(typeof app.service('adapter').find, 'function', 'Error', 'Got not a response status');
-//     assert.strictEqual(typeof app.service('adapter').update, 'function', 'Error', 'Got not a response status');
-//     assert.strictEqual(typeof app.service('adapter').patch, 'function', 'Error', 'Got not a response status');
-//     assert.strictEqual(typeof app.service('adapter').remove, 'function', 'Error', 'Got not a response status');
-//   });
-// });
-
-// describe('Feathers Opossum Tests Simple Configuration', () => {
-//   before(async () => {
-//     const options = {
-//       opossum: {
-//         timeout: 100, // If our function takes longer than 3 seconds, trigger a failure
-//         errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
-//         resetTimeout: 1000 // After 30 seconds, try again.
-//       },
-//       // this means only find and get method relay on circur breaking
-//       methods: ['find', 'get']
-//     };
-
-//     const mockService = CircuitBreaker(Service, { delay: 10 }, options);
-
-//     app.use('/adapter', mockService);
-//   });
-
-//   it('faster than timeout', async () => {
-//     const result = await app.service('adapter').get(1, { name: 'John' });
-//     assert.strictEqual(result.id, 1, 'Timed out after 100ms');
-//   });
-
-//   it('slower than timeout first timeout', async () => {
-//     try {
-//       await app.service('adapter').get(200);
-//       throw new Error('Should never get here');
-//     } catch (error) {
-//       assert.strictEqual(error.message, 'Timed out after 100ms');
-//     }
-//   });
-
-//   it('slower than timeout second timeout', async () => {
-//     try {
-//       await app.service('adapter').get(200);
-//       throw new Error('Should never get here');
-//     } catch (error) {
-//       assert.strictEqual(error.message, 'Timed out after 100ms');
-//     }
-//   });
-
-//   it('slower than timeout third - breaker is open', async () => {
-//     try {
-//       await app.service('adapter').get(200);
-//       throw new Error('Should never get here');
-//     } catch (error) {
-//       assert.strictEqual(error.message, 'Breaker is open');
-//     }
-//   });
-
-//   it('wait - breaker is closed', async () => {
-//     const timeout = async delay => {
-//       return new Promise(resolve => setTimeout(resolve, delay));
-//     };
-//     await timeout(1200);
-//     const result = await app.service('adapter').get(1);
-//     assert.strictEqual(result.id, 1, 'Result ok');
-//   });
-// });
-
-// describe('Feathers Opossum Tests Structured Configuration', () => {
-//   before(async () => {
-//     const options = {
-//       find: {
-//         opossum: {
-//           timeout: 100, // If our function takes longer than 3 seconds, trigger a failure
-//           errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
-//           resetTimeout: 1000 // After 30 seconds, try again.
-//         }
-//       },
-//       get: {
-//         opossum: {
-//           timeout: 100, // If our function takes longer than 3 seconds, trigger a failure
-//           errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
-//           resetTimeout: 1000 // After 30 seconds, try again.
-//         }
-//       }
-//     };
-
-//     const mockService = CircuitBreaker(Service, { delay: 10 }, options);
-
-//     app.use('/adapter', mockService);
-//   });
-
-//   it('faster than timeout', async () => {
-//     const result = await app.service('adapter').get(1, { name: 'John' });
-//     assert.strictEqual(result.id, 1, 'Timed out after 200ms');
-//   });
-
-//   it('slower than timeout first timeout', async () => {
-//     try {
-//       await app.service('adapter').get(200);
-//       throw new Error('Should never get here');
-//     } catch (error) {
-//       assert.strictEqual(error.message, 'Timed out after 100ms');
-//     }
-//   });
-
-//   it('slower than timeout second timeout', async () => {
-//     try {
-//       await app.service('adapter').get(200);
-//       throw new Error('Should never get here');
-//     } catch (error) {
-//       assert.strictEqual(error.message, 'Timed out after 100ms');
-//     }
-//   });
-
-//   it('slower than timeout third - breaker is open', async () => {
-//     try {
-//       await app.service('adapter').get(200);
-//       throw new Error('Should never get here');
-//     } catch (error) {
-//       assert.strictEqual(error.message, 'Breaker is open');
-//     }
-//   });
-
-//   it('wait - breaker is closed', async () => {
-//     const timeout = async delay => {
-//       return new Promise(resolve => setTimeout(resolve, delay));
-//     };
-//     await timeout(1200);
-//     const result = await app.service('adapter').get(1);
-//     assert.strictEqual(result.id, 1, 'Result ok');
-//   });
-// });
-
-// describe('Feathers Opossum Tests Fallback', () => {
-//   const emitter = new EventEmitter();
-//   before(async () => {
-//     const options = {
-//       get: {
-//         opossum: {
-//           timeout: 100, // If our function takes longer than 3 seconds, trigger a failure
-//           errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
-//           resetTimeout: 1000 // After 30 seconds, try again.
-//         },
-//         fallback: () => {
-//           return 'Sorry, out of service right now';
-//         },
-//         events: {
-//           onFire: result => emitter.emit('event', 'fire'),
-//           onReject: result => emitter.emit('event', 'reject'),
-//           onTimeout: result => emitter.emit('event', 'timeout'),
-//           onSuccess: result => emitter.emit('event', 'success'),
-//           onFailure: result => emitter.emit('event', 'failure'),
-//           onOpen: result => emitter.emit('event', 'open'),
-//           onClose: result => emitter.emit('event', 'close'),
-//           onHalfOpen: result => emitter.emit('event', 'halfOpen'),
-//           onFallback: result => emitter.emit('event', 'fallback'),
-//           onSemaphoreLocked: result => emitter.emit('event', 'semaphoreLocked'),
-//           onHealthCheckFailed: result => emitter.emit('event', 'healthCheckFailed')
-//         }
-//       }
-//     };
-
-//     const mockService = CircuitBreaker(Service, { delay: 10 }, options);
-
-//     app.use('/adapter', mockService);
-//   });
-
-//   it('faster than timeout', async () => {
-//     const result = await app.service('adapter').get(1, { name: 'John' });
-//     assert.strictEqual(result.id, 1, 'Id is is');
-//   });
-
-//   it('slower than timeout expect fallback', async () => {
-//     const result = await app.service('adapter').get(200, { name: 'John' });
-//     assert.strictEqual(result, 'Sorry, out of service right now', 'Sorry, out of service right now');
-//   });
-
-//   it('wait - is closed', async () => {
-//     const timeout = async delay => {
-//       return new Promise(resolve => setTimeout(resolve, delay));
-//     };
-//     await timeout(1200);
-//     const result = await app.service('adapter').get(20, { name: 'John' });
-//     assert.strictEqual(result.id, 1, 'Id is is');
-//   });
-
-//   it('event fallback', done => {
-//     emitter.on('event', msg => {
-//       if (msg === 'fallback') done();
-//     });
-//     app
-//       .service('adapter')
-//       .get(120, { name: 'John' })
-//       .catch(res => {});
-//   });
-// });
