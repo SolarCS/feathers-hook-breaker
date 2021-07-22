@@ -217,7 +217,7 @@ const breakerHookFunction = (options = {}) => {
 
 The fallback function is the function that will be executed if either a) the method call fails, or b) the breaker is already open. 
 
-Opossum passes the fallback funcntion the same data arguments that were passed to the `breakker.fire()` call (`{ ctx.id, ctx.data, ctx.params }`). In addition, Feathers-Hook-Breaker passes the current state of the breaker, pre-method-call. Include this boolean param in your fallback function if you want to handle method call rejections (`breakerIsOpen === true`) differently from method call failures (`breakerIsOpen === false`).
+Opossum passes the fallback function the same data arguments that were passed to the `breaker.fire()` call (`{ ctx.id, ctx.data, ctx.params }`). In addition, Feathers-Hook-Breaker passes the current state of the breaker, pre-method-call. Include this boolean param in your fallback function if you want to handle method call rejections (`breakerIsOpen === true`) differently from method call failures (`breakerIsOpen === false`).
 
 If the fallback function is called, its return is the value that is assigned to `ctx.result` in leiu of the successful response. *If the fallback function does not return anything,* `ctx.result` *will be set to* `undefined`.
 
