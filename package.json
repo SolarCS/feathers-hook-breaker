@@ -13,12 +13,8 @@
   },
   "devDependencies": {
     "@feathersjs/adapter-tests": "^4.5.2",
-    "@feathersjs/express": "^4.5.4",
     "@feathersjs/feathers": "^4.5.3",
-    "body-parser": "^1.19.0",
     "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1",
-    "coveralls": "^3.1.0",
     "feathers-memory": "^4.1.0",
     "istanbul": "^1.1.0-alpha.1",
     "loud-rejection": "^2.2.0",
@@ -35,12 +31,8 @@
     "mocha": "mocha --opts mocha.opts -S",
     "mocha:watch": "mocha --opts mocha.opts -S --watch lib node_modules/@feathersjs/adapter-tests/lib",
     "test": "npm run lint && npm run lint && npm run coverage",
-    "example": "babel-node example/index",
     "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --opts mocha.opts",
-    "travis": "node_modules/.bin/istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --colors --reporter spec test/",
-    "start": "nodemon example -w example -w lib -w test",
-    "benchmark:fetch": "ab -n 1000 -c 10 http://localhost:3030/fetch/TWINX2048-3200PRO",
-    "benchmark:undici": "ab -n 1000 -c 10 http://localhost:3030/undici/TWINX2048-3200PRO"
+    "start": "nodemon example -w example -w lib -w test"
   },
   "semistandard": {
     "env": [
