@@ -127,6 +127,8 @@ const breakerHookFunction = (options = {}) => {
 If no other `before` hooks are required by the method, the breaker function can then be called in the `before.all` hook chain:
 
 ```javascript
+// either require your breakerHookFunction or require feathers-hook-breaker and define your breakerHookFunction here...
+
 module.exports = {
   before: {
     all: [ breakerHookFunction() ],
@@ -145,6 +147,8 @@ module.exports = {
 However, because the breaker will make the actual method call from within the hook, and because of the hook chain order (`before.all` hooks prior to `before[method]` hooks), if there are any other hooks required, the breaker hook function must be called AFTER any other hooks in the chain:
 
 ```javascript
+// either require your breakerHookFunction or require feathers-hook-breaker and define your breakerHookFunction here...
+
 module.exports = {
   before: {
     all: [ authenticate() ],
