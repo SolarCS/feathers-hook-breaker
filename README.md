@@ -1,6 +1,6 @@
 ## Pre-release notes for devs
 
-there is currently no NPM package for this. to use or install, just copy `lib/breaker.js` into `src/hooks/` or maybe directly into your service's folder. I'll publish to NPM once I have the ability to publish a private package
+there is currently no NPM package for this. to use or install, just copy `lib/breaker.js` into `src/hooks/` or maybe directly into your service's folder. Then run `npm i opossum` in your working dir. I'll publish to NPM once I have the ability to publish a private package
 
 the breaker itself is located at `/lib/breaker.js`
 
