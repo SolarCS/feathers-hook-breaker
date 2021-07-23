@@ -1,6 +1,6 @@
 ## Pre-release notes for devs
 
-there is currently no NPM package for this. to use or install, just copy `lib/breaker.js` into `src/hooks/` or maybe directly into your service's folder. Then run `npm i opossum` in your working dir. I'll publish to NPM once I have the ability to publish a private package
+there is currently no NPM package for this. To use or install, just copy `lib/breaker.js` into `src/hooks/` or maybe directly into your service's folder. Then run `npm i opossum` in your working dir. I'll publish to NPM once I have the ability to publish a private package
 
 the breaker itself is located at `/lib/breaker.js`
 
@@ -134,7 +134,9 @@ const breakerHookFunction = (options = {}) => {
 If no other `before` hooks are required by the method, the breaker function can then be called in the `before.all` hook chain:
 
 ```javascript
-// either require your breakerHookFunction or require feathers-hook-breaker and define your breakerHookFunction here...
+// either require your breakerHookFunction 
+// or 
+// require feathers-hook-breaker and define your breakerHookFunction here...
 
 module.exports = {
   before: {
@@ -154,7 +156,9 @@ module.exports = {
 However, because the breaker will make the actual method call from within the hook, and because of the hook chain order (`before.all` hooks prior to `before[method]` hooks), if there are any other hooks required, the breaker hook function must be called AFTER any other hooks in the chain:
 
 ```javascript
-// either require your breakerHookFunction or require feathers-hook-breaker and define your breakerHookFunction here...
+// either require your breakerHookFunction 
+// or 
+// require feathers-hook-breaker and define your breakerHookFunction here...
 
 module.exports = {
   before: {
@@ -185,7 +189,7 @@ module.exports = {
 *While Opossum is built on events, event listeners should be used sparingly and deliberately for any service that may experience concurrent method calls, as an event emitted by one call may affect the other calls.*
 
 Opossum is built with event-based functionality, and allows event listener functions to be added to the breaker. To do this, add a key-value pair to the options passed to the breaker in the following format:
-  - key: prepend one of Opossum's emitted events with the keyword `on`, in camelCase style (`onSuccess`, `onReject`, `onClose`)
+  - key: prepend one of Opossum's [emitted events](https://github.com/nodeshift/opossum#events) with the keyword `on`, in camelCase style (`onSuccess`, `onReject`, `onClose`)
   - value: define the function to be executed when the event is emitted
 
 ```javascript
