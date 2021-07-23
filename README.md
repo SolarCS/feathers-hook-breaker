@@ -251,13 +251,27 @@ const breakerOptions = {
 
 *Note that the fallback function field is* `fallback`*, not* `onFallback`. `onFallback` *would be a valid listener function to be called any time the* `fallback` *function executes.*
 
-### A Note on Options
+### On [Options](https://nodeshift.dev/opossum/#circuitbreaker)
+
+#### Single-Failure Breaker Trip vs errorThresholdPercentage
 
 Feathers-Hook-Breaker's default configuration is for a 3-second timeout, a 10-second `halfOpen` state, and failure settings configured to trip the breaker after a single failure (10000req/sec volume).
 
 To override the timeout or the `halfOpen` time, include the fields `timeout` and `resetTimeout`, respectively, in your breaker options.
 
 To override the single-failure settings, and trip the breaker based on a percentage of failures, include the `rollingCountTimeout`, `rollingCountBuckets`, and `errorThresholdPercentage` fields in your breaker options. [Here](https://github.com/nodeshift/opossum#calculating-errorthresholdpercentage) is more information about Opossum's `errorThresholdPercentage`.
+
+#### Verbose Mode and the errorFilter
+
+Opossum offers an `options` field called `errorFilter`. The value to this field is a function that "will be called when the circuit's function fails (returns a rejected Promise). If this function returns truthy, the circuit's failPure statistics will not be incremented. This is useful, for example, when you don't want HTTP 404 to trip the circuit, but still want to handle it as a failure case."
+
+Feathers-Hook-Breaker offers an additional `options.verbose` field. Because FHB will throw the filtered error anyway, `options.verbose` defaults to `false` to cut down on console noise. In non-verbose mode, FHB will output the following message, to indicate that an error has passed through the breaker.
+
+```
+Non-'failure' Error Caught by Circuit Breaker: {error.code} - {error.message}
+```
+
+If the developer wishes to see the entire error, set `options.verbose: true`, and the entire error will be output to the console after the `Non-'failure' Error Caught by Circuit Breaker: ` location indicator.
 
 ### Manipulating the Breaker
 
