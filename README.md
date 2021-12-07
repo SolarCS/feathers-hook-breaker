@@ -42,7 +42,7 @@ const breakerHookFunction = (options = {}) => {
 };
 ```
 
-5. Finally, call the breaker hook function last in the `hooks.before` chain of whatever method(s) you want to protect, <em>AFTER ANY OTHER HOOKS IN THE `BEFORE` CHAIN.<em>
+5. Finally, call the breaker hook function last in the `hooks.before` chain of whatever method(s) you want to protect, <em>AFTER ANY OTHER HOOKS IN THE `BEFORE` CHAIN.</em>
 ### Pre-release notes for devs
 
 there is currently no NPM package for this. To use or install, just copy `lib/breaker.js` into `src/hooks/` or maybe directly into your service's folder. Then run `npm i opossum` in your working dir. I'll publish to NPM once I have the ability to publish a private package
@@ -59,7 +59,7 @@ to run the test suite, call `npm run test`. this will run the entire suite, so c
 
 to run the test suite with continuous re-run, call `npm run mocha:watch`
 
-## Feathers-Hook-Breaker
+# Feathers-Hook-Breaker
 
 ![Node.js CI](https://github.com/nodeshift/opossum/workflows/Node.js%20CI/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/nodeshift/opossum/badge.svg?branch=master)](https://coveralls.io/github/nodeshift/opossum?branch=master)
@@ -85,6 +85,14 @@ To save yourself some headaches later, make sure to follow the instructions care
 First, run `npm install feathers-hook-breaker` from within your working directory.
 
 Then, within the to-be-protected service's `class.js` file, make the following changes:
+
+  IF USING A DB ADAPTER
+
+  1. Make sure your custom service extends `Service`, complete with the necessary constructor.
+  2. Skip to step 3 below.
+
+  IF NOT USING A DB ADAPTER
+
   1. Require the `AdapterService` from '@feathersjs/adapter-commons' at the top of the file:
   2. Have your service extend `AdapterService`, complete with the necessary constructor:
   3. Inside the service, define the hookless (ex: `_create` instead of `create`) version of every method you intend to protect (to protect the entire service, define ALL hookless methods).
