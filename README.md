@@ -43,7 +43,7 @@ const breakerHookFunction = (options = {}) => {
 ```
 
 5. Finally, call the breaker hook function last in the `hooks.before` chain of whatever method(s) you want to protect, <em>AFTER ANY OTHER HOOKS IN THE `BEFORE` CHAIN.<em>
-## Pre-release notes for devs
+### Pre-release notes for devs
 
 there is currently no NPM package for this. To use or install, just copy `lib/breaker.js` into `src/hooks/` or maybe directly into your service's folder. Then run `npm i opossum` in your working dir. I'll publish to NPM once I have the ability to publish a private package
 
@@ -58,12 +58,6 @@ a mock service has been created in `test/services`
 to run the test suite, call `npm run test`. this will run the entire suite, so comment out any tests you don't want run
 
 to run the test suite with continuous re-run, call `npm run mocha:watch`
-
-LEFT TO DO:
-- Find a way to test the error-catching function of the breaker. I know it works, because it works in the Gateway. But without simulating HTTP responses, I can't seem to get the breaker to interpret the error correctly. (Ugh. Either there's a legit way to do this, or, as the Black Crowes would say, "Am I just plain lazy?")
-- Confirm that you need to call `super._theMethod(args)` in the service.class.js file. Currently that's just an educated assumption.
-- On the same note, the setup/usage may be different if using various DB adapters (such as feathers-sequelize). Need to figure that out as well. Initial research suggests that if using an adapter, you'l still need to include the `_method` definitions in the class, but `class XXX extends Service` should cover the inheritance chain.
-
 
 ## Feathers-Hook-Breaker
 
@@ -185,8 +179,8 @@ const breakerHookFunction = (options = {}) => {
 If no other `before` hooks are required by the method, the breaker function can then be called in the `before.all` hook chain:
 
 ```javascript
-// either require your breakerHookFunction 
-// or 
+// either require your breakerHookFunction
+// or
 // require feathers-hook-breaker and define your breakerHookFunction here...
 
 module.exports = {
@@ -207,8 +201,8 @@ module.exports = {
 However, because the breaker will make the actual method call from within the hook, and because of the hook chain order (`before.all` hooks prior to `before[method]` hooks), if there are any other hooks required, the breaker hook function must be called AFTER any other hooks in the chain:
 
 ```javascript
-// either require your breakerHookFunction 
-// or 
+// either require your breakerHookFunction
+// or
 // require feathers-hook-breaker and define your breakerHookFunction here...
 
 module.exports = {
@@ -362,3 +356,8 @@ describe('circuit breaker tests', () => {
 ```
 
 Additionally, all active breakers can be found by accessing `global.breakers` directly.
+
+## Future Development Plans
+- Find a way to test the error-catching function of the breaker. I know it works, because it works in the Gateway. But without simulating HTTP responses, I can't seem to get the breaker to interpret the error correctly. (Ugh. Either there's a legit way to do this, or, as the Black Crowes would say, "Am I just plain lazy?")
+- Confirm that you need to call `super._theMethod(args)` in the service.class.js file. Currently that's just an educated assumption.
+- On the same note, the setup/usage may be different if using various DB adapters (such as feathers-sequelize). Need to figure that out as well. Initial research suggests that if using an adapter, you'l still need to include the `_method` definitions in the class, but `class XXX extends Service` should cover the inheritance chain.
