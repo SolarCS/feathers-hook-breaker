@@ -1,3 +1,48 @@
+## Quick Start
+
+1. Run `npm install feathers-hook-breaker` from within your working directory.
+2. If using a Database Adapter, make sure your custom service extends `Service`. Otherwise, have your custom service extend `AdapterService`
+3. In the same custom service's `class.js` file, override any to-be-protected-method with its hookless version, and return either custom functionality or `super._{method}.(args)`:
+
+```javascript
+  async _create (data, params) {
+    return super._create(data, params); // and/or custom functionality
+  }
+```
+4. At the top of your sevice's `hooks.js` file, `require('feathers-hook-breaker')` and assign it to a variable, define a breaker hook function that populates an `options` object and passes it to the function variable:
+
+``` javascript
+const FHB = require('feathers-hook-breaker');
+
+const breakerHookFunction = (options = {}) => {
+  return async ctx => {
+    const breakerOptions = {
+      timeout: 2500,
+      resetTimeout: 8000,
+      onSuccess: () => console.log('Successful method call'),
+      fallback: (breakerIsOpen) => {
+        if (breakerIsOpen) {
+          console.log('Method call skipped, breaker open.');
+        } else {
+          console.log('Method call failed');
+        }
+
+        return {
+          status: 'fallback called',
+          ...ctx.data
+        }
+      },
+      ...options
+    };
+
+    await FHB(breakerOptions).call(this, ctx);
+
+    return ctx;
+  };
+};
+```
+
+5. Finally, call the breaker hook function last in the `hooks.before` chain of whatever method(s) you want to protect, <em>AFTER ANY OTHER HOOKS IN THE `BEFORE` CHAIN.<em>
 ## Pre-release notes for devs
 
 there is currently no NPM package for this. To use or install, just copy `lib/breaker.js` into `src/hooks/` or maybe directly into your service's folder. Then run `npm i opossum` in your working dir. I'll publish to NPM once I have the ability to publish a private package
@@ -48,7 +93,7 @@ First, run `npm install feathers-hook-breaker` from within your working director
 Then, within the to-be-protected service's `class.js` file, make the following changes:
   1. Require the `AdapterService` from '@feathersjs/adapter-commons' at the top of the file:
   2. Have your service extend `AdapterService`, complete with the necessary constructor:
-  3. Inside the service, define the hookless (ex: `_create` instead of `create`) version of every method you intend to protect (to protect the entire service, define ALL hookless methods). 
+  3. Inside the service, define the hookless (ex: `_create` instead of `create`) version of every method you intend to protect (to protect the entire service, define ALL hookless methods).
   4. Unless you plan to override the hookless method beyond the default Feathersjs definition, `return super._theMethod(args)` inside the function definition.
 
 In the end, an entirely-protected service's `class.js` file would look like this:
@@ -62,28 +107,34 @@ exports.SomeService = class SomeService extends AdapterService {
     this.options = options || {};
     this.app = app;
   }
-  
+
   async _find (params) {
+    // [additional customization and functionality here]
     return super._find(params);
   }
-  
+
   async _get (id, params) {
+    // [additional customization and functionality here]
     return super._get(id, params);
   }
-  
+
   async _create (data, params) {
+    // [additional customization and functionality here]
     return super._create(data, params);
   }
-  
+
   async _update (id, data, params) {
+    // [additional customization and functionality here]
     return super._update(id, data, params);
   }
-  
+
   async _patch (id, data, params) {
+    // [additional customization and functionality here]
     return super._patch(id, data, params);
   }
-  
+
   async _remove (id, params) {
+    // [additional customization and functionality here]
     return super._remove(id, params);
   }
 };
@@ -92,7 +143,7 @@ exports.SomeService = class SomeService extends AdapterService {
 - The hookless functions defined in your now-protected class should call `super._method(args)` only as a default, as though the `AdapterService` was making the actual call. Feel free to replace `super._method(args)` with whatever functionality you require. That being said...
 - **DO NOT CATCH ERRORS WITH YOUR HOOKLESS METHODS.** The breaker operates by interpreting any timeouts or error responses, so if those errors are caught by the method call the breaker won't be able to use them. Opossum includes an `errorFilter` that will allow errors to pass through without tripping the breaker. Feathers-Hook-Breaker will throw those errors itself, so **DO NOT CATCH ERRORS WITH YOUR HOOKLESS METHODS.**
 
-### Usage 
+### Usage
 
 Require 'feathers-hook-breaker' in whichever file you define your actual breaker hook function, and assign it to a function variable. Create a new asynchronous hook function, and await the new breaker function within the hook function, passing in any desired breaker init options, and calling it with a binding to the context object.
 
@@ -111,7 +162,7 @@ const breakerHookFunction = (options = {}) => {
         } else {
           console.log('Method call failed');
         }
-        
+
         return {
           status: 'fallback called',
           ...ctx.data
@@ -119,9 +170,9 @@ const breakerHookFunction = (options = {}) => {
       },
       ...options
     };
-    
+
     await FHB(breakerOptions).call(this, ctx);
-    
+
     return ctx;
   };
 };
@@ -148,7 +199,7 @@ module.exports = {
     patch: [],
     remove: []
   },
-  
+
   after: {
     ......
 ```
@@ -179,7 +230,7 @@ module.exports = {
     ],
     remove: [ breakerHookFunction() ]
   },
-  
+
   after: {
     ......
 ```
@@ -201,7 +252,7 @@ const breakerOptions = {
 };
 ```
 
-The arguments passed/available to the event listener functions aren't consistent. For example, the `'success'` event passes the response object to the listener function, while the `'fallback'` event passes the return from the `fallback` function. Most, if not all, other events don't pass arguments to the listener function at all. 
+The arguments passed/available to the event listener functions aren't consistent. For example, the `'success'` event passes the response object to the listener function, while the `'fallback'` event passes the return from the `fallback` function. Most, if not all, other events don't pass arguments to the listener function at all.
 
 To work with data in the event listener functions, define a data type in the `breakerHookFunction` scope, and access (and return) that data in the listener function:
 
@@ -216,13 +267,13 @@ const breakerHookFunction = (options = {}) => {
         return logObject;
       },
     };
-    
+
     await FHB(breakerOptions).call(this, ctx);
 
     if (logObject.openedAt) {
       sendLogObjectToLogService();
     }
-    
+
     return ctx;
   };
 };
@@ -230,7 +281,7 @@ const breakerHookFunction = (options = {}) => {
 
 ### The Fallback Function
 
-The fallback function is the function that will be executed if either a) the method call fails, or b) the breaker is already open. 
+The fallback function is the function that will be executed if either a) the method call fails, or b) the breaker is already open.
 
 Opossum passes the fallback function the same data arguments that were passed to the `breaker.fire()` call (`{ ctx.id, ctx.data, ctx.params }`). In addition, Feathers-Hook-Breaker passes the current state of the breaker, pre-method-call. Include this boolean param in your fallback function if you want to handle method call rejections (`breakerIsOpen === true`) differently from method call failures (`breakerIsOpen === false`).
 
@@ -244,7 +295,7 @@ const breakerOptions = {
     } else {
       console.log('Unsuccessful method call.');
     }
-    
+
     return {
       status: 'fallback called',
       ...data
@@ -296,15 +347,15 @@ describe('circuit breaker tests', () => {
     testBreaker = global.breakers['test-service'];
     testBreaker.options.resetTimeout = 500;
   });
-  
+
   it('tests the fallback function', () => {
     testBreaker.open();
-    
+
     await app.service('test-service').find();
-    
+
     assert.ok('something something fallback function return');
     assert.ok(testBreaker.stats.fallbacks === 1);
-    
+
     testBreaker.close();
   });
 });
