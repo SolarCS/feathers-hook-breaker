@@ -402,6 +402,7 @@ describe('Basic Circuit Breaker Functionality', () => {
 
     const expectedResult = {
       status: 'fallback called',
+      breakerState: 'closed',
       id: 1000,
       data: { name: 'Philip J Fry' },
       params: { delay: 1000 }
