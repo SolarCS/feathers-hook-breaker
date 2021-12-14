@@ -1,15 +1,15 @@
 ## Quick Start
 
 1. Run `npm install feathers-hook-breaker` from within your working directory.
-2. If using a Database Adapter, make sure your custom service extends `Service`. Otherwise, have your custom service extend `AdapterService`
-3. In the same custom service's `class.js` file, override any to-be-protected-method with its hookless version, and return either custom functionality or `super._{method}.(args)`:
+2. If using a Database Adapter, make sure your custom service extends `Service`. Otherwise, have your custom service extend `AdapterService`.
+4. In the same custom service's `class.js` file, add `super(options, app)` to the `constructor` function in the class definition, override any to-be-protected-method with its hookless version, and return either custom functionality or `super._{method}.(args)`:
 
 ```javascript
   async _create (data, params) {
     return super._create(data, params); // and/or custom functionality
   }
 ```
-4. At the top of your sevice's `hooks.js` file, `require('feathers-hook-breaker')` and assign it to a variable, define a breaker hook function that populates an `options` object and passes it to the function variable:
+5. At the top of your sevice's `hooks.js` file, `require('feathers-hook-breaker')` and assign it to a variable, define a breaker hook function that populates an `options` object and passes it to the function variable:
 
 ``` javascript
 const FHB = require('feathers-hook-breaker');
@@ -95,8 +95,9 @@ Then, within the to-be-protected service's `class.js` file, make the following c
 
   1. Require the `AdapterService` from '@feathersjs/adapter-commons' at the top of the file:
   2. Have your service extend `AdapterService`, complete with the necessary constructor:
-  3. Inside the service, define the hookless (ex: `_create` instead of `create`) version of every method you intend to protect (to protect the entire service, define ALL hookless methods).
-  4. Unless you plan to override the hookless method beyond the default Feathersjs definition, `return super._theMethod(args)` inside the function definition.
+  3. Add `super(options, app)` to the `constructor` function in the class definition.
+  4. Inside the service, define the hookless (ex: `_create` instead of `create`) version of every method you intend to protect (to protect the entire service, define ALL hookless methods).
+  5. Unless you plan to override the hookless method beyond the default Feathersjs definition, `return super._theMethod(args)` inside the function definition.
 
 In the end, an entirely-protected service's `class.js` file would look like this:
 
