@@ -19,20 +19,22 @@
     "istanbul": "^1.1.0-alpha.1",
     "loud-rejection": "^2.2.0",
     "mocha": "^7.2.0",
+    "nyc": "^15.1.0",
     "semistandard": "^14.2.0"
   },
   "scripts": {
     "publish": "git push origin --tags && git push origin",
     "changelog": "github_changelog_generator && git add CHANGELOG.md && git commit -am \"Updating changelog\"",
-    "release:patch": "npm version patch && npm publish",
-    "release:minor": "npm version minor && npm publish",
-    "release:major": "npm version major && npm publish",
     "lint": "semistandard --fix",
-    "mocha": "mocha --opts mocha.opts -S",
-    "mocha:watch": "mocha --opts mocha.opts -S --watch lib node_modules/@feathersjs/adapter-tests/lib",
-    "test": "npm run lint && npm run lint && npm run coverage",
-    "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --opts mocha.opts",
-    "start": "nodemon example -w example -w lib -w test"
+    "mocha": "mocha --recursive --config .mocharc.json test/**/*.test.js",
+    "test": "npm run lint && npm run coverage",
+    "test:dev": "npm run mocha -- --watch --recursive --watch-files src/**/*.js,test/**/*.js test/**/*.test.js",
+    "coverage": "nyc npm run mocha",
+    "semantic-release": "semantic-release",
+    "semantic-release:level": "npx --no-install semantic-release --no-ci --dry-run | egrep 'complete: (minor|major|patch)' | egrep -o '(minor|major|patch)' > .NEXT_VERSION_LEVEL",
+    "semantic-release:version": "npx --no-install semantic-release --no-ci --dry-run | egrep 'next release version is ([0-9]+\\.[0-9]+\\.[0-9]+)' | egrep -o '([0-9]+\\.[0-9]+\\.[0-9]+)' > .NEXT_VERSION",
+    "semantic-release:next": "npm run semantic-release:level && npm run semantic-release:version",
+    "release:publish": "npm run test && npm run semantic-release:next && VERSION=$(cat .NEXT_VERSION_LEVEL) && yes | np $VERSION --no-yarn "
   },
   "semistandard": {
     "env": [
@@ -50,9 +52,15 @@
     "opossum"
   ],
   "author": {
-    "name": "Ben Zelinski"
+    "name": "Ben Zelinski",
+    "email": "bzelinski@cipherhealth.com"
   },
-  "contributors": [],
+  "contributors": [
+    {
+      "name" : "James Villarrubia",
+      "email" : "james.villarrubia@gmail.com"
+    }
+  ],
   "licenses": [
     {
       "type": "MIT",

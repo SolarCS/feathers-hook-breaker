@@ -1,0 +1,1 @@
+{"processes":{"ca2eed82-b095-479d-9769-180dd2cd1156":{"parent":"f0a1d5d9-7133-41f8-8156-dccef288cc8e","children":[]},"f0a1d5d9-7133-41f8-8156-dccef288cc8e":{"parent":null,"children":["ca2eed82-b095-479d-9769-180dd2cd1156"]}},"files":{"/Users/jvillarrubia/Sites/prs/feathers-hook-breaker/lib/breaker.js":["ca2eed82-b095-479d-9769-180dd2cd1156"]},"externalIds":{}}
