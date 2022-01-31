@@ -105,6 +105,10 @@
             {
               "type": "perf",
               "release": "patch"
+            },
+            {
+              "type": "chore",
+              "release": "patch"
             }
           ]
         }
