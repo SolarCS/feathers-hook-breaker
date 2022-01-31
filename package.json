@@ -20,7 +20,13 @@
     "loud-rejection": "^2.2.0",
     "mocha": "^7.2.0",
     "nyc": "^15.1.0",
-    "semistandard": "^14.2.0"
+    "semistandard": "^14.2.0",
+    "semantic-release": "^18.0.1",
+    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/git": "^10.0.1"
+  },
+  "engines": {
+    "node": ">= 12"
   },
   "scripts": {
     "publish": "git push origin --tags && git push origin",
@@ -57,8 +63,8 @@
   },
   "contributors": [
     {
-      "name" : "James Villarrubia",
-      "email" : "james.villarrubia@gmail.com"
+      "name": "James Villarrubia",
+      "email": "james.villarrubia@gmail.com"
     }
   ],
   "licenses": [
@@ -70,5 +76,39 @@
   "bugs": {
     "url": "https://github.com/SolarCS/feathers-hook-breaker/issues"
   },
-  "homepage": "https://github.com/SolarCS/feathers-hook-breaker#readme"
+  "homepage": "https://github.com/SolarCS/feathers-hook-breaker#readme",
+  "np": {
+    "contents": "lib"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ],
+    "plugins": [
+      [
+        "@semantic-release/commit-analyzer",
+        {
+          "preset": "angular",
+          "releaseRules": [
+            {
+              "type": "docs",
+              "release": "patch"
+            },
+            {
+              "type": "refactor",
+              "release": "patch"
+            },
+            {
+              "type": "style",
+              "release": "patch"
+            },
+            {
+              "type": "perf",
+              "release": "patch"
+            }
+          ]
+        }
+      ]
+    ]
+  }
 }

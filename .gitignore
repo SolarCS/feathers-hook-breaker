@@ -39,3 +39,5 @@ example/public/docs
 .vscode/*
 
 .nyc_output
+.NEXT_VERSION_LEVEL
+.NEXT_VERSION
