@@ -10,6 +10,9 @@ on:
     types: [ closed ]
     branches:
       - main
+      - 'releases/**-alpha*' # allow alpha releases
+      - 'releases/**-beta*' # allow beta releases
+      - 'releases/**-beta*' # allow beta releases
   
 
 jobs:
