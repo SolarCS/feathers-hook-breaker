@@ -58,7 +58,7 @@ jobs:
       
       - name: Change Version and stage the changes
         run: |
-          npm version $NEW_VERSION --no-git-tag-version
+          npm version $NEW_VERSION --no-git-tag-version --allow-same-version
           git add package.json
           git add package-lock.json
       
