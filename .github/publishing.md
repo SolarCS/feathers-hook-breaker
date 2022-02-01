@@ -13,3 +13,9 @@ After merging a PR the following will happen:
 4. The amended commit is tagged with the verison number.
 5. The amended commit is tarballed and published to npm.
 
+Once a day, an update-dependencies check will happen:
+1. default branch is checked out
+2. npm-check-updates is run to modify the package.json
+3. git commit is made
+4. git is pushed to defualt branch
+5. a pr is created with the appropriate changes
