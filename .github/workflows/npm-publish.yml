@@ -93,7 +93,7 @@ jobs:
       - run: npm ci
       - run: |
           git fetch --all
-          git reset --hard origin/${{ github.GITHUB_BASE_REF }}
+          git reset --hard origin/$GITHUB_BASE_REF
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
