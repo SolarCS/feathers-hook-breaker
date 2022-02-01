@@ -83,11 +83,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: "0"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.GITHUB_BASE_REF }}
       - uses: actions/setup-node@v2
         with:
           node-version: 14
           registry-url: https://registry.npmjs.org/
       - run: npm ci
+      - run: git pull
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
