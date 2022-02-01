@@ -1,4 +1,4 @@
-name: Merge Pull Request & Publish
+name: Node Lint & Test
 
 on:
   workflow_dispatch: # allows manual trigger
