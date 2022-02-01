@@ -1,8 +1,8 @@
 name: Merge Pull Request & Publish
 
 on:
-  workflow_dispatch # allows manual trigger
-  pull_request
+  workflow_dispatch: # allows manual trigger
+  pull_request:
   
 jobs:
   build:
