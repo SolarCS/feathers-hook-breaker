@@ -7,6 +7,8 @@ name: Merge Pull Request & Publish
 on:
   pull_request:
     types: [ closed ]
+    branches:
+      - main
 
 jobs:
   build:
@@ -32,7 +34,7 @@ jobs:
         with:
           fetch-depth: "0"
           token: ${{ secrets.GITHUB_TOKEN }}
-          ref: 'main'
+          ref: ${{ github.GITHUB_BASE_REF }}
       - uses: actions/setup-node@v2
         with:
           node-version: 14
@@ -62,7 +64,7 @@ jobs:
           git pull
           git commit --amend --no-edit
           git tag "v$NEW_VERSION"
-          git remote set-url origin https://github.com/SolarCS/feathers-hook-breaker.git
+          git remote set-url origin https://github.com/${{ github.GITHUB_REPOSITORY }}.git
           git push --force
           git push origin "v$NEW_VERSION"
       
