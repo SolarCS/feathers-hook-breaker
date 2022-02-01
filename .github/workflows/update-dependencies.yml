@@ -18,9 +18,8 @@ jobs:
         git config user.name github-actions
         git config user.email github-actions@github.com
         git checkout -b update-dependencies-$GITHUB_RUN_ID
-    - run: npm install npm-check-updates
     - run: |
-        ncu -u
+        npx npm-check-updates -u
         npm install
     - run: |
         git commit -am "chore(dependencies): Update dependencies"
