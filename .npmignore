@@ -1,0 +1,9 @@
+.editorconfig
+.jshintrc
+.istanbul.yml
+.idea/
+.vscode/
+test/
+coverage/
+.github/
+.nyc_output
