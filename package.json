@@ -1,6 +1,6 @@
 {
-  "name": "feathers-hook-breaker",
-  "version": "1.0.2",
+  "name": "feathers-hook-breaker2",
+  "version": "1.0.0",
   "description": "An Opossum-based Circuit Breaker built to be inserted into the Feathersjs Hook Chain",
   "main": "lib/breaker.js",
   "types": "types",
@@ -9,16 +9,16 @@
     "test": "test"
   },
   "dependencies": {
-    "opossum": "^5.0.0"
+    "opossum": "^6.3.0"
   },
   "devDependencies": {
-    "@feathersjs/adapter-tests": "^4.5.2",
-    "@feathersjs/feathers": "^4.5.3",
-    "chai": "^4.2.0",
+    "@feathersjs/adapter-tests": "^4.5.12",
+    "@feathersjs/feathers": "^4.5.12",
+    "chai": "^4.3.6",
     "feathers-memory": "^4.1.0",
-    "mocha": "^7.2.0",
+    "mocha": "^9.2.0",
     "nyc": "^15.1.0",
-    "semistandard": "^14.2.0"
+    "semistandard": "^16.0.1"
   },
   "engines": {
     "node": ">= 12"
@@ -70,7 +70,17 @@
   },
   "release": {
     "branches": [
-      "main"
+      "main",
+      {
+        "name": "beta",
+        "channel": "beta",
+        "prerelease": true
+      },
+      {
+        "name": "alpha",
+        "channel": "alpha",
+        "prerelease": true
+      }
     ],
     "plugins": [
       [
@@ -78,10 +88,6 @@
         {
           "preset": "angular",
           "releaseRules": [
-            {
-              "type": "docs",
-              "release": "patch"
-            },
             {
               "type": "refactor",
               "release": "patch"
