@@ -75,7 +75,11 @@ jobs:
           git remote set-url origin https://github.com/${GITHUB_REPOSITORY}.git
           git push --force
           git push origin "v$NEW_VERSION"
-      
+      - name: publish to NPM
+        run: |
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
   publish-npm:
     needs: version
@@ -92,7 +96,9 @@ jobs:
           node-version: 14
           registry-url: https://registry.npmjs.org/
       - run: npm ci
-      - run: git pull
+      - run: |
+          git fetch --all
+          git reset --hard origin/${{ github.GITHUB_BASE_REF }}
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
