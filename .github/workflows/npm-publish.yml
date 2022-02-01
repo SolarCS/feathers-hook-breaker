@@ -43,7 +43,8 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: "0"
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # modifed to give greater permissions.  MUST MAINTAIN CODEOWNERS FILE FOR THIS TO BE SECURE
+          token: ${{ secrets.GH_CI_TOKEN }}
           ref: ${{ github.GITHUB_BASE_REF }}
       - uses: actions/setup-node@v2
         with:
