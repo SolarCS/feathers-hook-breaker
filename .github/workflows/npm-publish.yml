@@ -75,11 +75,6 @@ jobs:
           git remote set-url origin https://github.com/${GITHUB_REPOSITORY}.git
           git push --force
           git push origin "v$NEW_VERSION"
-      - name: publish to NPM
-        run: |
-          npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
   publish-npm:
     needs: version
