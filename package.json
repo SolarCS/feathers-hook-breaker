@@ -15,6 +15,7 @@
     "@feathersjs/adapter-tests": "^4.5.12",
     "@feathersjs/feathers": "^4.5.12",
     "chai": "^4.3.6",
+    "@semantic-release/git": "^10.0.1",
     "feathers-memory": "^4.1.0",
     "mocha": "^9.2.0",
     "nyc": "^15.1.0",
@@ -25,7 +26,7 @@
   },
   "scripts": {
     "lint": "semistandard --fix",
-    "mocha": "mocha --recursive --config .mocharc.json test/**/*.test.js",
+    "mocha": "mocha --recursive --config .mocharc.json test/",
     "test": "npm run lint && npm run coverage",
     "test:dev": "npm run mocha -- --watch --recursive --watch-files src/**/*.js,test/**/*.js test/**/*.test.js",
     "coverage": "nyc npm run mocha"
@@ -47,7 +48,7 @@
   ],
   "author": {
     "name": "Ben Zelinski",
-    "email": "bziggz@gmail.com "
+    "email": "bziggz@gmail.com"
   },
   "contributors": [
     {
@@ -69,16 +70,10 @@
     "url": "https://github.com/SolarCS/feathers-hook-breaker/issues"
   },
   "homepage": "https://github.com/SolarCS/feathers-hook-breaker#readme",
-  "np": {
-    "contents": "lib"
-  },
   "release": {
     "branches": [
-      "main",
       {
-        "name": "beta",
-        "channel": "beta",
-        "prerelease": true
+        "name": "main"
       },
       {
         "name": "alpha",
@@ -87,6 +82,10 @@
       }
     ],
     "plugins": [
+      "@semantic-release/git",
+      ["@semantic-release/npm", {
+        "npmPublish": true
+      }],
       [
         "@semantic-release/commit-analyzer",
         {
