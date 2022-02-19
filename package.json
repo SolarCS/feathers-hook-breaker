@@ -1,6 +1,6 @@
 {
   "name": "feathers-hook-breaker",
-  "version": "2.0.0-alpha",
+  "version": "2.0.0-alpha.2",
   "description": "An Opossum-based Circuit Breaker built to be inserted into the Feathersjs Hook Chain",
   "main": "lib",
   "types": "types",
