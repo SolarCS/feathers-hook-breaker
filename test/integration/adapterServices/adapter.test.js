@@ -4,24 +4,24 @@ const feathers = require('@feathersjs/feathers');
 const memory = require('feathers-memory');
 const { breakerWrapper, beforeBreakerHook, errorBreakerHook } = require('../../../lib');
 
-let app = feathers(); 
+const app = feathers();
 
-
-let service = breakerWrapper(
+const service = breakerWrapper(
   memory,
-  { 
+  {
     events: ['testing']
-  }, 
+  }
 );
 
 app.use('/mock-service', service);
 app.service('/mock-service').hooks({
-  before: {all:[beforeBreakerHook(
-    {name:()=>`${Math.random()}`}
-  )]},
-  error: {all:[errorBreakerHook()]}
+  before: {
+    all: [beforeBreakerHook(
+      { name: () => `${Math.random()}` }
+    )]
+  },
+  error: { all: [errorBreakerHook()] }
 });
-  
 
 const testSuite = adapterTests([
   '.options',
@@ -97,7 +97,6 @@ describe('Feathers Opossum - Adapter Tests', () => {
   });
   afterEach(async () => {
     global.breakers = {};
-
   });
   testSuite(app, errors, 'mock-service');
 });

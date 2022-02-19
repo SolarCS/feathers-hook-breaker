@@ -2,19 +2,19 @@
 const assert = require('assert');
 const { beforeBreakerHook } = require('../../../lib/hooks');
 
-let ctx = (count)=>({
-  app:{
-    get:()=>{
+const ctx = (count) => ({
+  app: {
+    get: () => {
       return {
         rollingCountTimeout: count
       };
     }
   },
-  params:{}
+  params: {}
 });
 
 describe('UNIT \'errorBreakerHook\' function', () => {
-  
+
   //   it('uses base options', async () => {
   //     let _ctx = {...ctx(),app:{get:()=>({})}};
   //     let result = await beforeBreakerHook({})(_ctx);

@@ -10,24 +10,21 @@ const defaultOptions = exports.defaultOptions = {
   //   console.log('name is made: ',r);
   //   return r;
   // })(),
-  query:{'yes':false}
+  query: { yes: false }
 };
-  
-exports.defaultParams = {
-  breakerOptions:defaultOptions
-};
-  
 
-exports.appFactory =  function (name, ServiceClass, serviceOptions = {}, allowedMethods=[], hooks){
-  let app = feathers(); 
-  let service = breakerWrapper(
+exports.defaultParams = {
+  breakerOptions: defaultOptions
+};
+
+exports.appFactory = function (name, ServiceClass, serviceOptions = {}, allowedMethods = [], hooks) {
+  const app = feathers();
+  const service = breakerWrapper(
     ServiceClass,
-    serviceOptions, 
+    serviceOptions,
     allowedMethods
   );
   app.use(`/${name}`, service);
-  app.service(name).hooks(hooks||{before: {all:[beforeBreakerHook()]},error: {all:[errorBreakerHook()]}});  
+  app.service(name).hooks(hooks || { before: { all: [beforeBreakerHook()] }, error: { all: [errorBreakerHook()] } });
   return app.service(name);
 };
-  
-  
