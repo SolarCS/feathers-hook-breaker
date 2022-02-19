@@ -91,12 +91,6 @@
         "npmPublish": true
       }],
       [
-        "@semantic-release/npm",
-        {
-          "npmPublish": false
-        }
-      ],
-      [
         "@semantic-release/commit-analyzer",
         {
           "preset": "angular",
