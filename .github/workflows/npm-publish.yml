@@ -57,8 +57,11 @@ jobs:
  
       - name: Get the new semver and store in env
         run: |
+          npx semantic-release@18.0.1 --no-ci --dry-run
           NEW_VERSION=$(npx semantic-release@18.0.1 --no-ci --dry-run | egrep -o 'Published release (\S*)' | egrep -o '([0-9]\S*)')
           CHANNEL=$(npx semantic-release@18.0.1 --no-ci --dry-run | egrep -o 'on (\S*) channel' | egrep -o ' (\S*) ' | xargs)
+          echo $NEW_VERSION
+          echo $CHANNEL
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           echo "CHANNEL=$CHANNEL" >> $GITHUB_ENV
 
