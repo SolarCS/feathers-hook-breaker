@@ -89,7 +89,6 @@ jobs:
           git remote set-url origin https://github.com/${GITHUB_REPOSITORY}.git
           git push --force
           npx semantic-release@18.0.1 --no-ci
-          npm publish --tag "${{ env.CHANNEL }}"
 
   publish-npm:
     needs: version
