@@ -57,7 +57,7 @@ jobs:
  
       - name: Get the new semver and store in env
         run: |
-          OUTPUT=$(npx semantic-release@18.0.1)
+          OUTPUT=$(npx semantic-release@18.0.1 --no-ci --dry-run)
           echo $OUTPUT
           NEW_VERSION=$(echo $OUTPUT | egrep -o 'Published release (\S*)' | egrep -o '([0-9]\S*)')
           CHANNEL=$(echo $OUTPUT --no-ci --dry-run | egrep -o 'on (\S*) channel' | egrep -o ' (\S*) ' | xargs)
