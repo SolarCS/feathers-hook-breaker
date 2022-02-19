@@ -74,9 +74,6 @@
     "url": "https://github.com/SolarCS/feathers-hook-breaker/issues"
   },
   "homepage": "https://github.com/SolarCS/feathers-hook-breaker#readme",
-  "np": {
-    "contents": "lib"
-  },
   "release": {
     "branches": [
       {
@@ -90,6 +87,9 @@
     ],
     "plugins": [
       "@semantic-release/git",
+      ["@semantic-release/npm", {
+        "npmPublish": false
+      }],
       [
         "@semantic-release/commit-analyzer",
         {
