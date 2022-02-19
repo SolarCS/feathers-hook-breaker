@@ -57,9 +57,10 @@ jobs:
  
       - name: Get the new semver and store in env
         run: |
-          npx semantic-release@18.0.1 --no-ci --dry-run
-          NEW_VERSION=$(npx semantic-release@18.0.1 --no-ci --dry-run | egrep -o 'Published release (\S*)' | egrep -o '([0-9]\S*)')
-          CHANNEL=$(npx semantic-release@18.0.1 --no-ci --dry-run | egrep -o 'on (\S*) channel' | egrep -o ' (\S*) ' | xargs)
+          OUTPUT=$(npx semantic-release@18.0.1 --no-ci --dry-run)
+          echo $OUTPUT
+          NEW_VERSION=$(echo $OUTPUT | egrep -o 'Published release (\S*)' | egrep -o '([0-9]\S*)')
+          CHANNEL=$(echo $OUTPUT --no-ci --dry-run | egrep -o 'on (\S*) channel' | egrep -o ' (\S*) ' | xargs)
           echo $NEW_VERSION
           echo $CHANNEL
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
@@ -90,24 +91,24 @@ jobs:
           git push --force
           npx semantic-release@18.0.1 --no-ci
 
-  publish-npm:
-    needs: version
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: "0"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          ref: ${{ github.GITHUB_BASE_REF }}
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 14
-          registry-url: https://registry.npmjs.org/
-      - run: npm ci
-      - run: |
-          git fetch --all
-          git reset --hard origin/$GITHUB_BASE_REF
-      - run: npm publish --tag "${{ env.CHANNEL }}"
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+  # publish-npm:
+  #   needs: version
+  #   if: github.event.pull_request.merged == true
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         fetch-depth: "0"
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  #         ref: ${{ github.GITHUB_BASE_REF }}
+  #     - uses: actions/setup-node@v2
+  #       with:
+  #         node-version: 14
+  #         registry-url: https://registry.npmjs.org/
+  #     - run: npm ci
+  #     - run: |
+  #         git fetch --all
+  #         git reset --hard origin/$GITHUB_BASE_REF
+  #     - run: npm publish --tag "${{ env.CHANNEL }}"
+  #       env:
+  #         NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
