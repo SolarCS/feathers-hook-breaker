@@ -57,9 +57,14 @@ jobs:
  
       - name: Get the new semver and store in env
         run: |
+          npx semantic-release@18.0.1 --no-ci --dry-run
           NEW_VERSION=$(npx semantic-release@18.0.1 --no-ci --dry-run | egrep -o 'Published release (\S*)' | egrep -o '([0-9]\S*)')
+          CHANNEL=$(npx semantic-release@18.0.1 --no-ci --dry-run | egrep -o 'on (\S*) channel' | egrep -o ' (\S*) ' | xargs)
+          echo $NEW_VERSION
+          echo $CHANNEL
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-      
+          echo "CHANNEL=$CHANNEL" >> $GITHUB_ENV
+
       - name: Change Version and stage the changes
         run: |
           npm version $NEW_VERSION --no-git-tag-version --allow-same-version
@@ -67,15 +72,24 @@ jobs:
           git add package-lock.json
       
       - name: amend and tag the commit
+        # run: |
+        #   git config user.name github-actions
+        #   git config user.email github-actions@github.com
+        #   git pull
+        #   git commit --amend --no-edit
+        #   git tag "v$NEW_VERSION"
+        #   git remote set-url origin https://github.com/${GITHUB_REPOSITORY}.git
+        #   git push --force
+        #   git push origin "v$NEW_VERSION"
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
           git pull
           git commit --amend --no-edit
-          git tag "v$NEW_VERSION"
           git remote set-url origin https://github.com/${GITHUB_REPOSITORY}.git
           git push --force
-          git push origin "v$NEW_VERSION"
+          npx semantic-release@18.0.1 --no-ci
+          npm publish --tag "${{ env.CHANNEL }}"
 
   publish-npm:
     needs: version
@@ -95,6 +109,6 @@ jobs:
       - run: |
           git fetch --all
           git reset --hard origin/$GITHUB_BASE_REF
-      - run: npm publish
+      - run: npm publish --tag "${{ env.CHANNEL }}"
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
