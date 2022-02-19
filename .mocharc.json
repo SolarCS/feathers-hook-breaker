@@ -1,6 +1,6 @@
 {
     "timeout": 20000,
     "reporter": "Dot",
-    "extension": ".test.ts",
+    "extension": ".test.js",
     "exit": true
   }
