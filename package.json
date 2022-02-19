@@ -2,7 +2,7 @@
   "name": "feathers-hook-breaker",
   "version": "2.0.0-alpha",
   "description": "An Opossum-based Circuit Breaker built to be inserted into the Feathersjs Hook Chain",
-  "main": "lib/breaker.js",
+  "main": "lib",
   "types": "types",
   "directories": {
     "lib": "lib",
@@ -32,7 +32,7 @@
   },
   "scripts": {
     "lint": "semistandard --fix",
-    "mocha": "mocha --recursive --config .mocharc.json test/**/*.test.js",
+    "mocha": "mocha --recursive --config .mocharc.json test/",
     "test": "npm run lint && npm run coverage",
     "test:dev": "npm run mocha -- --watch --recursive --watch-files src/**/*.js,test/**/*.js test/**/*.test.js",
     "coverage": "nyc npm run mocha"
