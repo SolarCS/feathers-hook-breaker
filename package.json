@@ -87,6 +87,9 @@
     ],
     "plugins": [
       "@semantic-release/git",
+      ["@semantic-release/npm", {
+        "npmPublish": true
+      }],
       [
         "@semantic-release/npm",
         {
