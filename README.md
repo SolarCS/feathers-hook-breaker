@@ -11,6 +11,8 @@ This library is a FeathersJS-friendly way of using the  `nodeShift/opossum` circ
 * [x] Flexible Scoping
 * [x] Breaker optionality per scope
 * [ ] Shared Breaker State across instances
+* [ ] Example implementations across GCP, AWS, and Azure
+* [ ] Feathers v5 Support
 
 ## Quick Start
 
